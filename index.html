@@ -1,0 +1,1299 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Meuligoe Indah Steel</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Exo+2:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+
+<!-- Firebase SDK -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence, updatePassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getFirestore, doc, getDoc, setDoc, collection, getDocs, addDoc, updateDoc, deleteDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBvrs_uaQvVQvUOemHcq2r3raeBBztCg_g",
+  authDomain: "vena-welding-6f88c.firebaseapp.com",
+  projectId: "vena-welding-6f88c",
+  storageBucket: "vena-welding-6f88c.firebasestorage.app",
+  messagingSenderId: "72576618344",
+  appId: "1:72576618344:web:327a23ff7b20acf6b590dd"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+// ── expose globals ──
+window._auth = auth;
+window._db = db;
+window._fbFns = {
+  signInWithEmailAndPassword, signOut, onAuthStateChanged,
+  setPersistence, browserLocalPersistence, updatePassword,
+  doc, getDoc, setDoc, collection, getDocs, addDoc,
+  updateDoc, deleteDoc, onSnapshot, serverTimestamp
+};
+window._fbReady = true;
+document.dispatchEvent(new Event('fbReady'));
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#070c17;--blue:#3d8eff;--cyan:#00cfff;
+  --orange:#ff6b2b;--gold:#ffc444;--green:#00e87a;--red:#ff3d5a;
+  --glass:rgba(255,255,255,0.055);--glass2:rgba(255,255,255,0.09);
+  --bdr:rgba(61,142,255,0.2);--bdr2:rgba(61,142,255,0.42);
+  --txt:#ddeeff;--txt2:#6a8fb0;
+  --sh:0 4px 20px rgba(0,0,0,0.5);
+  --bnav:62px;
+}
+html,body{height:100%;overflow:hidden}
+body{font-family:'Exo 2',sans-serif;background:var(--bg);color:var(--txt);font-size:14px}
+
+/* BG LAYER */
+#bgLayer{position:fixed;inset:0;z-index:0;background-size:cover;background-position:center;transition:opacity .5s}
+#bgLayer::after{content:'';position:absolute;inset:0;background:rgba(7,12,23,0.72)}
+body::after{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(61,142,255,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(61,142,255,0.025) 1px,transparent 1px);background-size:32px 32px;pointer-events:none;z-index:0}
+
+/* SCREENS */
+.screen{position:fixed;inset:0;display:none;flex-direction:column;z-index:1}
+.screen.active{display:flex}
+.scroll-area{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding:14px 14px 20px}
+.scroll-area::-webkit-scrollbar{width:3px}
+.scroll-area::-webkit-scrollbar-thumb{background:var(--bdr2);border-radius:2px}
+
+/* TOPBAR */
+.topbar{flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:10px 13px;background:rgba(7,12,23,0.93);backdrop-filter:blur(18px);border-bottom:1px solid var(--bdr);min-height:56px;z-index:10}
+.logo-wrap{display:flex;align-items:center;gap:10px}
+.logo-box{width:36px;height:36px;border-radius:9px;background:rgba(61,142,255,0.1);border:1px solid var(--bdr);display:flex;align-items:center;justify-content:center;font-size:18px;overflow:hidden;flex-shrink:0}
+.logo-box img{width:100%;height:100%;object-fit:contain}
+.co-name{font-family:'Orbitron',monospace;font-size:11px;font-weight:900;background:linear-gradient(90deg,var(--blue),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:.5px;line-height:1.2}
+.co-tag{font-size:9px;color:var(--txt2);letter-spacing:1.5px;text-transform:uppercase;margin-top:1px}
+
+/* BOTTOM NAV */
+.bottom-nav{flex-shrink:0;display:flex;align-items:stretch;background:rgba(5,9,18,0.97);backdrop-filter:blur(20px);border-top:1px solid var(--bdr);height:var(--bnav);padding-bottom:env(safe-area-inset-bottom,0px)}
+.bnav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;border:none;background:none;font-family:'Exo 2',sans-serif;font-size:9px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;color:var(--txt2);transition:color .2s;padding:0}
+.bnav-btn .ni{font-size:20px;line-height:1;transition:filter .2s}
+.bnav-btn.active{color:var(--blue)}
+.bnav-btn.active .ni{filter:drop-shadow(0 0 6px var(--blue))}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:9px 16px;border:none;border-radius:50px;font-family:'Exo 2',sans-serif;font-weight:700;font-size:12px;cursor:pointer;transition:transform .15s;position:relative;overflow:hidden;letter-spacing:.3px;white-space:nowrap}
+.btn:active{transform:scale(.93)}
+.btn-blue{background:linear-gradient(135deg,#3d8eff,#00cfff);color:#001a3d;box-shadow:0 3px 14px rgba(61,142,255,.45)}
+.btn-orange{background:linear-gradient(135deg,#ff6b2b,#ff9d5c);color:#fff;box-shadow:0 3px 14px rgba(255,107,43,.4)}
+.btn-green{background:linear-gradient(135deg,#00b860,#00e87a);color:#001a0e;box-shadow:0 3px 14px rgba(0,232,122,.35)}
+.btn-red{background:linear-gradient(135deg,#ff1a40,#ff6680);color:#fff;box-shadow:0 3px 14px rgba(255,29,64,.4)}
+.btn-gold{background:linear-gradient(135deg,#c98f00,#ffc444);color:#1a0e00;box-shadow:0 3px 14px rgba(255,196,68,.35)}
+.btn-ghost{background:rgba(61,142,255,.08);color:var(--blue);border:1px solid var(--bdr2)}
+.btn-sm{padding:7px 13px;font-size:11px}
+.btn-xs{padding:5px 10px;font-size:10px}
+.btn-full{width:100%;padding:13px}
+
+/* CARDS */
+.card{background:var(--glass);backdrop-filter:blur(14px);border:1px solid var(--bdr);border-radius:14px;box-shadow:var(--sh),inset 0 1px 0 rgba(255,255,255,.05)}
+.card2{background:var(--glass2);backdrop-filter:blur(18px);border:1px solid var(--bdr2);border-radius:12px;box-shadow:var(--sh),0 0 18px rgba(61,142,255,.14)}
+
+/* INPUTS */
+.inp{background:rgba(255,255,255,.05);border:1px solid var(--bdr);border-radius:10px;color:var(--txt);padding:11px 13px;font-family:'Exo 2',sans-serif;font-size:14px;width:100%;outline:none;transition:all .2s}
+.inp:focus{border-color:var(--blue);background:rgba(61,142,255,.08);box-shadow:0 0 0 3px rgba(61,142,255,.12)}
+.inp::placeholder{color:var(--txt2)}
+textarea.inp{resize:vertical;min-height:70px}
+select.inp{cursor:pointer}
+.lbl{display:block;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--cyan);margin-bottom:5px}
+.fg{margin-bottom:12px}
+
+/* SECTION TITLE */
+.stitle{font-family:'Orbitron',monospace;font-size:11px;font-weight:700;color:var(--cyan);letter-spacing:2px;text-transform:uppercase;margin-bottom:13px;display:flex;align-items:center;gap:10px}
+.stitle::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--bdr2),transparent)}
+
+/* STATS */
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.stat-card{padding:13px 14px;border-radius:12px}
+.stat-lbl{font-size:9px;color:var(--txt2);font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:5px}
+.stat-val{font-family:'Orbitron',monospace;font-size:15px;font-weight:700;line-height:1.2}
+.cv-blue{color:var(--blue)}.cv-green{color:var(--green)}.cv-red{color:var(--red)}.cv-gold{color:var(--gold)}
+
+/* TABLE */
+.tbl-wrap{overflow-x:auto;border-radius:12px}
+.tbl{width:100%;border-collapse:collapse;min-width:380px;font-size:12px}
+.tbl th{background:rgba(61,142,255,.1);color:var(--cyan);font-weight:700;letter-spacing:.5px;text-transform:uppercase;font-size:10px;padding:9px 10px;text-align:left;border-bottom:1px solid var(--bdr)}
+.tbl td{padding:9px 10px;border-bottom:1px solid rgba(255,255,255,.04);vertical-align:middle}
+.tbl tr:last-child td{border-bottom:none}
+
+/* MODAL */
+.modal-wrap{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(8px);z-index:900;align-items:flex-end;justify-content:center}
+.modal-wrap.open{display:flex;animation:mfade .18s}
+@keyframes mfade{from{opacity:0}to{opacity:1}}
+.modal-box{width:100%;max-width:520px;max-height:90vh;overflow-y:auto;padding:0 17px 36px;background:rgba(6,11,22,.98);border:1px solid var(--bdr2);border-radius:20px 20px 0 0;box-shadow:0 -8px 40px rgba(0,0,0,.7);animation:mslide .28s cubic-bezier(.34,1.4,.64,1)}
+@keyframes mslide{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.mhandle{width:40px;height:4px;background:rgba(255,255,255,.14);border-radius:2px;margin:14px auto 16px}
+.mtitle{font-size:17px;font-weight:800;color:#fff;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.modal-box::-webkit-scrollbar{width:3px}
+.modal-box::-webkit-scrollbar-thumb{background:var(--bdr2);border-radius:2px}
+
+/* TOAST */
+.toast-wrap{position:fixed;top:66px;left:50%;transform:translateX(-50%);z-index:9999;display:flex;flex-direction:column;align-items:center;gap:7px;pointer-events:none;width:92%}
+.toast{padding:9px 18px;border-radius:50px;font-size:12px;font-weight:700;animation:tin .25s cubic-bezier(.34,1.56,.64,1);text-align:center}
+.t-ok{background:rgba(0,50,25,.97);border:1px solid rgba(0,232,122,.4);color:var(--green)}
+.t-err{background:rgba(50,0,15,.97);border:1px solid rgba(255,61,90,.4);color:var(--red)}
+.t-info{background:rgba(0,20,50,.97);border:1px solid rgba(61,142,255,.4);color:var(--blue)}
+@keyframes tin{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+
+/* AUTOSAVE INDICATOR */
+.autosave-dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green);display:inline-block;margin-left:6px;opacity:0;transition:opacity .3s}
+.autosave-dot.show{opacity:1}
+
+/* SPINNER */
+.spinner{display:inline-block;width:20px;height:20px;border:2px solid rgba(61,142,255,.3);border-top-color:var(--blue);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* WA */
+.wa-fab{position:fixed;bottom:78px;right:15px;z-index:500;background:linear-gradient(135deg,#1da851,#25D366);border-radius:50px;padding:11px 17px;display:flex;align-items:center;gap:9px;box-shadow:0 4px 20px rgba(37,211,102,.5);text-decoration:none;color:#fff;font-weight:700;font-size:13px;animation:wab 3s ease-in-out infinite}
+@keyframes wab{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+
+/* SERVICE CARD */
+.svc-card{padding:14px;border-radius:13px;background:var(--glass);border:1px solid var(--bdr);margin-bottom:10px;display:flex;gap:12px;align-items:flex-start}
+.svc-name{font-weight:800;font-size:14px;color:#fff;margin-bottom:3px}
+.svc-desc{font-size:12px;color:var(--txt2);line-height:1.55}
+
+/* HERO */
+.hero{padding:24px 14px 16px;text-align:center}
+.hero h1{font-family:'Orbitron',monospace;font-size:19px;font-weight:900;background:linear-gradient(135deg,#fff 0%,var(--blue) 50%,var(--cyan) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1.35;margin-bottom:10px}
+.hero p{font-size:12px;color:var(--txt2);line-height:1.7}
+
+/* BADGE */
+.badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:50px;font-size:10px;font-weight:700}
+.b-blue{background:rgba(61,142,255,.18);color:var(--cyan);border:1px solid rgba(61,142,255,.3)}
+.b-green{background:rgba(0,232,122,.12);color:var(--green);border:1px solid rgba(0,232,122,.3)}
+.b-orange{background:rgba(255,107,43,.12);color:#ff9d5c;border:1px solid rgba(255,107,43,.3)}
+
+/* PROGRESS */
+.prog-bg{height:5px;background:rgba(255,255,255,.07);border-radius:3px;overflow:hidden}
+.prog-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--blue),var(--cyan));transition:width .5s}
+
+/* MISC */
+.div{height:1px;background:linear-gradient(90deg,transparent,var(--bdr2),transparent);margin:13px 0}
+.list-row{display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid rgba(255,255,255,.05);cursor:pointer}
+.list-row:last-child{border-bottom:none}
+.proj-card{padding:13px;border-radius:13px;background:var(--glass);border:1px solid var(--bdr);margin-bottom:10px;position:relative;overflow:hidden}
+.proj-card::before{content:'';position:absolute;left:0;top:0;width:3px;height:100%;background:linear-gradient(180deg,var(--blue),var(--cyan));border-radius:3px 0 0 3px}
+.est-item{display:flex;align-items:center;justify-content:space-between;padding:11px 12px;border-radius:10px;background:rgba(255,255,255,.03);border:1px solid var(--bdr);margin-bottom:8px}
+.recap-row{display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.05)}
+.recap-row:last-child{border-bottom:none;padding-top:9px;font-size:15px;font-weight:800}
+.empty{text-align:center;padding:36px 16px;color:var(--txt2)}
+.empty .ei{font-size:40px;margin-bottom:9px}
+
+/* IDLE TIMER BAR */
+#idleBar{position:fixed;top:0;left:0;height:2px;background:linear-gradient(90deg,var(--blue),var(--cyan));z-index:9999;transition:width .5s linear;width:100%}
+
+/* PDF PREVIEW */
+#pdfWrap{display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:1000;flex-direction:column}
+#pdfWrap.open{display:flex}
+#pdfBar{display:flex;align-items:center;justify-content:space-between;padding:12px 15px;background:rgba(6,11,22,.98);border-bottom:1px solid var(--bdr);flex-shrink:0}
+#pdfFrame{flex:1;width:100%;border:none;background:#fff}
+
+/* COPYRIGHT */
+.copyright{text-align:center;font-size:10px;color:var(--txt2);padding:14px;opacity:.6;letter-spacing:.5px}
+
+/* BG PICKER */
+.bg-preview{width:100%;height:120px;border-radius:10px;background-size:cover;background-position:center;border:1px solid var(--bdr);margin-bottom:10px;display:flex;align-items:center;justify-content:center;font-size:24px;position:relative;overflow:hidden}
+.bg-preview::after{content:'';position:absolute;inset:0;background:rgba(0,0,0,.3)}
+</style>
+</head>
+<body>
+
+<div id="bgLayer"></div>
+<div id="idleBar"></div>
+<div class="toast-wrap" id="toastWrap"></div>
+
+<!-- PDF Preview -->
+<div id="pdfWrap">
+  <div id="pdfBar">
+    <span style="font-weight:700;font-size:13px;color:var(--cyan)">📄 Preview PDF</span>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-green btn-sm" id="pdfDlBtn">⬇ Download</button>
+      <button class="btn btn-red btn-sm" onclick="closePDF()">✕ Tutup</button>
+    </div>
+  </div>
+  <iframe id="pdfFrame"></iframe>
+</div>
+
+<!-- ══════════ SCREEN: CLIENT ══════════ -->
+<div id="scClient" class="screen active">
+  <div class="topbar">
+    <div class="logo-wrap">
+      <div class="logo-box" id="logoC">🔧</div>
+      <div>
+        <div class="co-name" id="coNameC">MEULIGOE INDAH STEEL</div>
+        <div class="co-tag" id="coTagC">Welding & Engineering</div>
+      </div>
+    </div>
+    <button class="btn btn-ghost btn-sm" onclick="go('scLogin')">🔐 Admin</button>
+  </div>
+  <div class="scroll-area">
+    <div class="hero">
+      <h1 id="heroTitle">Solusi Fabrikasi & Rekayasa Baja Terpercaya</h1>
+      <p id="heroDesc">Kami menyediakan layanan pengelasan, konstruksi baja, dan rekayasa berkualitas tinggi.</p>
+    </div>
+    <div class="stitle">Layanan Kami</div>
+    <div id="svcGrid"></div>
+    <div class="copyright">Copyright ©2026 SRISP</div>
+  </div>
+  <div id="waFab"></div>
+</div>
+
+<!-- ══════════ SCREEN: LOGIN ══════════ -->
+<div id="scLogin" class="screen">
+  <div class="topbar">
+    <button class="btn btn-ghost btn-sm" onclick="go('scClient')">← Kembali</button>
+    <div class="co-name" style="font-size:11px">ADMIN LOGIN</div>
+    <div style="width:80px"></div>
+  </div>
+  <div class="scroll-area" style="display:flex;align-items:center;justify-content:center">
+    <div style="width:100%;max-width:380px">
+      <div class="card2" style="padding:30px 20px">
+        <div style="text-align:center;margin-bottom:22px">
+          <div style="font-size:48px;margin-bottom:10px">🔐</div>
+          <div style="font-family:Orbitron,monospace;font-size:15px;color:var(--cyan);font-weight:900">ADMIN PANEL</div>
+          <div style="font-size:11px;color:var(--txt2);margin-top:4px">Meuligoe Indah Steel</div>
+        </div>
+        <div class="fg">
+          <label class="lbl">Username</label>
+          <input type="text" class="inp" id="loginUser" placeholder="admin" autocomplete="username" onkeydown="if(event.key==='Enter')doLogin()">
+        </div>
+        <div class="fg">
+          <label class="lbl">Password</label>
+          <input type="password" class="inp" id="loginPw" placeholder="Password" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+        </div>
+        <div id="loginErr" style="font-size:12px;color:var(--red);margin-bottom:10px;display:none"></div>
+        <button class="btn btn-blue btn-full" id="loginBtn" onclick="doLogin()">🚀 Masuk Admin</button>
+        <div class="copyright" style="margin-top:16px">Copyright ©2026 SRISP</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ SCREEN: ADMIN ══════════ -->
+<div id="scAdmin" class="screen">
+  <div class="topbar">
+    <div class="logo-wrap">
+      <div class="logo-box" id="logoA">🔧</div>
+      <div>
+        <div class="co-name" id="coNameA" style="font-size:10px">MEULIGOE INDAH STEEL</div>
+        <div class="co-tag">Admin <span id="autosaveDot" class="autosave-dot"></span></div>
+      </div>
+    </div>
+    <div style="display:flex;gap:7px">
+      <button class="btn btn-ghost btn-sm" onclick="go('scClient');renderClient()">👁</button>
+      <button class="btn btn-red btn-sm" onclick="doLogout()">↩</button>
+    </div>
+  </div>
+  <div class="scroll-area" id="adminBody"></div>
+  <nav class="bottom-nav">
+    <button class="bnav-btn active" id="bn0" onclick="setTab(0,this)"><span class="ni">📊</span>Dashboard</button>
+    <button class="bnav-btn" id="bn1" onclick="setTab(1,this)"><span class="ni">📁</span>Project</button>
+    <button class="bnav-btn" id="bn2" onclick="setTab(2,this)"><span class="ni">🧮</span>Estimasi</button>
+    <button class="bnav-btn" id="bn3" onclick="setTab(3,this)"><span class="ni">⚙️</span>Pengaturan</button>
+  </nav>
+</div>
+
+<!-- ══════════ SCREEN: DETAIL ══════════ -->
+<div id="scDetail" class="screen">
+  <div class="topbar">
+    <button class="btn btn-ghost btn-sm" onclick="go('scAdmin')">← Back</button>
+    <div style="flex:1;padding:0 10px;min-width:0">
+      <div style="font-weight:800;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" id="dtName">Detail</div>
+      <div style="font-size:10px;color:var(--txt2)" id="dtSub">-</div>
+    </div>
+    <div style="display:flex;gap:6px">
+      <button class="btn btn-gold btn-xs" onclick="expPDF()">📄 PDF</button>
+      <button class="btn btn-green btn-xs" onclick="expXLS()">📊 XLS</button>
+    </div>
+  </div>
+  <div class="scroll-area" id="detailBody"></div>
+</div>
+
+<!-- ══════════ MODALS ══════════ -->
+<div class="modal-wrap" id="mProject">
+  <div class="modal-box">
+    <div class="mhandle"></div>
+    <div class="mtitle" id="mProjTitle">📁 Tambah Project</div>
+    <div id="mProjFields"></div>
+    <div style="display:flex;gap:8px;margin-top:8px">
+      <button class="btn btn-ghost" style="flex:1" onclick="closeM('mProject')">Batal</button>
+      <button class="btn btn-blue" style="flex:2" id="saveProjBtn" onclick="saveProject()">💾 Simpan</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-wrap" id="mCost">
+  <div class="modal-box">
+    <div class="mhandle"></div>
+    <div class="mtitle">💸 Tambah Pengeluaran</div>
+    <div class="fg"><label class="lbl">Keterangan</label><input class="inp" id="cItem" placeholder="Misal: Beli Elektroda / Upah Las"></div>
+    <div class="fg"><label class="lbl">Jumlah / Qty</label><input type="number" class="inp" id="cQty" value="1" min="1" oninput="updCostPrev()"></div>
+    <div class="fg"><label class="lbl">Harga Satuan (Rp)</label><input type="number" class="inp" id="cPrice" placeholder="0" oninput="updCostPrev()"></div>
+    <div style="background:rgba(61,142,255,.06);border:1px solid var(--bdr);border-radius:10px;padding:10px;margin-bottom:12px;font-size:12px;color:var(--txt2)" id="costPrev">Total: Rp 0</div>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-ghost" style="flex:1" onclick="closeM('mCost')">Batal</button>
+      <button class="btn btn-orange" style="flex:2" onclick="saveCost()">+ Tambah</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-wrap" id="mSvc">
+  <div class="modal-box">
+    <div class="mhandle"></div>
+    <div class="mtitle" id="mSvcTitle">🛠 Tambah Layanan</div>
+    <div class="fg"><label class="lbl">Emoji / Icon</label><input class="inp" id="sIcon" placeholder="🔧"></div>
+    <div class="fg"><label class="lbl">Nama Layanan</label><input class="inp" id="sName"></div>
+    <div class="fg"><label class="lbl">Deskripsi</label><textarea class="inp" id="sDesc"></textarea></div>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-ghost" style="flex:1" onclick="closeM('mSvc')">Batal</button>
+      <button class="btn btn-blue" style="flex:2" onclick="saveSvc()">💾 Simpan</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-wrap" id="mEst">
+  <div class="modal-box">
+    <div class="mhandle"></div>
+    <div class="mtitle" id="mEstTitle">🧮 Tipe Estimasi</div>
+    <div class="fg"><label class="lbl">Nama Tipe</label><input class="inp" id="etName" placeholder="Kanopi Baja Ringan"></div>
+    <div class="fg"><label class="lbl">Satuan</label><input class="inp" id="etUnit" placeholder="m², m, unit ..."></div>
+    <div class="fg"><label class="lbl">Harga per Satuan (Rp)</label><input type="number" class="inp" id="etPrice" placeholder="350000"></div>
+    <div class="fg"><label class="lbl">Keterangan (opsional)</label><textarea class="inp" id="etNote"></textarea></div>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-ghost" style="flex:1" onclick="closeM('mEst')">Batal</button>
+      <button class="btn btn-blue" style="flex:2" onclick="saveEstType()">💾 Simpan</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════
+// WAIT FOR FIREBASE
+// ══════════════════════════════════════════
+let _fb = null;
+function waitFB(){ return new Promise(res=>{ if(window._fbReady){res();return;} document.addEventListener('fbReady',()=>res(),{once:true}); }); }
+
+// ══════════════════════════════════════════
+// LOCAL CONFIG (fallback & cache)
+// ══════════════════════════════════════════
+const DEF_AP = {
+  name:'MEULIGOE INDAH STEEL', tag:'Welding & Engineering Solution',
+  heroTitle:'Solusi Fabrikasi & Rekayasa Baja Terpercaya',
+  heroDesc:'Kami menyediakan layanan pengelasan, konstruksi baja, dan rekayasa berkualitas tinggi untuk kebutuhan industri dan komersial Anda.',
+  logoUrl:'', logoEmoji:'🔧',
+  bg: 'https://images.unsplash.com/photo-1565891741441-64926e441838?w=1200&q=80'
+};
+const DEF_CT = {name:'Admin MIS',num:'6281234567890',msg:'Halo, saya ingin bertanya mengenai layanan Meuligoe Indah Steel'};
+const DEF_COLS = [
+  {key:'name',label:'Nama Project',type:'text',req:true},
+  {key:'value',label:'Nilai Kontrak (Rp)',type:'number',req:true},
+  {key:'address',label:'Alamat',type:'text',req:false},
+  {key:'status',label:'Status',type:'select',opts:['Aktif','Selesai','Pending'],req:false}
+];
+const DEF_SVCS = [
+  {id:'s1',icon:'🏗',name:'Konstruksi Baja',desc:'Pembangunan rangka baja untuk gedung, gudang, dan struktur industri.'},
+  {id:'s2',icon:'🔩',name:'Pengelasan Profesional',desc:'Layanan welding MIG, TIG, SMAW untuk baja dan aluminium.'},
+  {id:'s3',icon:'🏠',name:'Kanopi & Atap',desc:'Kanopi baja ringan, alderon, atap modern desain custom.'},
+  {id:'s4',icon:'🪟',name:'Teralis & Pagar',desc:'Teralis jendela, pintu, pagar besi/baja finishing berkualitas.'},
+  {id:'s5',icon:'⚙️',name:'Rekayasa Mekanik',desc:'Fabrikasi komponen mekanik, bracket, fixture sesuai gambar teknik.'},
+  {id:'s6',icon:'🚗',name:'Carport & Garasi',desc:'Carport baja estetis dan struktur kokoh berbagai ukuran.'}
+];
+const DEF_ESTS = [
+  {id:'e1',name:'Kanopi Baja Ringan',unit:'m²',price:350000,note:'Termasuk material + jasa instalasi'},
+  {id:'e2',name:'Teralis Besi',unit:'m²',price:280000,note:'Desain standar, finishing cat'},
+  {id:'e3',name:'Pagar Besi',unit:'m',price:450000,note:'Tinggi 1.5m, profil kotak 4x4'},
+  {id:'e4',name:'Kanopi Alderon',unit:'m²',price:420000,note:'Atap alderon warna'},
+  {id:'e5',name:'Carport Baja',unit:'unit',price:8500000,note:'Ukuran standar 3x5m'}
+];
+
+let AP = {...DEF_AP};
+let CT = {...DEF_CT};
+let COLS = [...DEF_COLS];
+let SVCS = [...DEF_SVCS];
+let ESTS = [...DEF_ESTS];
+let PROJECTS = [];
+
+// ══════════════════════════════════════════
+// UTILS
+// ══════════════════════════════════════════
+const fmt = n => 'Rp ' + (Number(n)||0).toLocaleString('id-ID');
+function toast(msg,t='info'){
+  const el = document.createElement('div');
+  el.className = `toast t-${t}`;
+  el.textContent = msg;
+  document.getElementById('toastWrap').appendChild(el);
+  setTimeout(()=>el.remove(), 2800);
+}
+function openM(id){document.getElementById(id).classList.add('open')}
+function closeM(id){document.getElementById(id).classList.remove('open')}
+document.querySelectorAll('.modal-wrap').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open')}));
+function go(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+function showAutosave(){
+  const d = document.getElementById('autosaveDot');
+  if(!d) return;
+  d.classList.add('show');
+  setTimeout(()=>d.classList.remove('show'), 1500);
+}
+
+// ══════════════════════════════════════════
+// BACKGROUND
+// ══════════════════════════════════════════
+function applyBG(url){
+  const el = document.getElementById('bgLayer');
+  if(url) el.style.backgroundImage = `url('${url}')`;
+  else el.style.backgroundImage = '';
+}
+
+// ══════════════════════════════════════════
+// LOGO
+// ══════════════════════════════════════════
+function setLogo(ids){
+  ids.forEach(id=>{
+    const el = document.getElementById(id); if(!el) return;
+    if(AP.logoUrl) el.innerHTML = `<img src="${AP.logoUrl}" onerror="this.parentElement.textContent='${AP.logoEmoji||'🔧'}'">`;
+    else el.textContent = AP.logoEmoji || '🔧';
+  });
+}
+
+// ══════════════════════════════════════════
+// FIREBASE HELPERS
+// ══════════════════════════════════════════
+async function fbGet(path){
+  const {doc,getDoc} = window._fbFns;
+  const parts = path.split('/');
+  let ref;
+  if(parts.length === 2) ref = doc(window._db, parts[0], parts[1]);
+  else ref = doc(window._db, ...parts);
+  const snap = await getDoc(ref);
+  return snap.exists() ? snap.data() : null;
+}
+async function fbSet(path, data){
+  const {doc,setDoc,serverTimestamp} = window._fbFns;
+  const parts = path.split('/');
+  let ref;
+  if(parts.length === 2) ref = doc(window._db, parts[0], parts[1]);
+  else ref = doc(window._db, ...parts);
+  await setDoc(ref, {...data, updatedAt: serverTimestamp()}, {merge:true});
+  showAutosave();
+}
+async function fbAdd(col, data){
+  const {collection,addDoc,serverTimestamp} = window._fbFns;
+  const ref = collection(window._db, col);
+  const d = await addDoc(ref, {...data, createdAt: serverTimestamp(), updatedAt: serverTimestamp()});
+  showAutosave();
+  return d.id;
+}
+async function fbDel(path){
+  const {doc,deleteDoc} = window._fbFns;
+  const parts = path.split('/');
+  let ref;
+  if(parts.length === 2) ref = doc(window._db, parts[0], parts[1]);
+  else ref = doc(window._db, ...parts);
+  await deleteDoc(ref);
+  showAutosave();
+}
+async function fbList(col){
+  const {collection,getDocs} = window._fbFns;
+  const ref = collection(window._db, col);
+  const snap = await getDocs(ref);
+  return snap.docs.map(d=>({id:d.id,...d.data()}));
+}
+
+// ══════════════════════════════════════════
+// LOAD ALL DATA FROM FIRESTORE
+// ══════════════════════════════════════════
+async function loadAllData(){
+  try {
+    const [ap, ct, cols, svcs, ests, projs] = await Promise.all([
+      fbGet('config/appearance'),
+      fbGet('config/contact'),
+      fbGet('config/columns'),
+      fbList('services'),
+      fbList('estimasi'),
+      fbList('projects')
+    ]);
+    if(ap){ AP = {...DEF_AP,...ap}; }
+    if(ct){ CT = {...DEF_CT,...ct}; }
+    if(cols && cols.data){ COLS = cols.data; }
+    if(svcs.length){ SVCS = svcs; }
+    if(ests.length){ ESTS = ests; }
+
+    // load each project with its costs
+    PROJECTS = await Promise.all(projs.map(async p=>{
+      const costs = await fbList(`projects/${p.id}/costs`);
+      return {...p, costs};
+    }));
+
+    // If no services/ests in DB, seed defaults
+    if(!svcs.length){ for(const s of DEF_SVCS) await fbSet(`services/${s.id}`,s); SVCS=[...DEF_SVCS]; }
+    if(!ests.length){ for(const e of DEF_ESTS) await fbSet(`estimasi/${e.id}`,e); ESTS=[...DEF_ESTS]; }
+
+    applyBG(AP.bg || DEF_AP.bg);
+    renderClient();
+  } catch(e){
+    console.error(e);
+    toast('Gagal memuat data: '+e.message,'err');
+  }
+}
+
+// ══════════════════════════════════════════
+// IDLE TIMER (10 menit = 600 detik)
+// ══════════════════════════════════════════
+let idleTimer = null;
+const IDLE_MS = 600000;
+let idleStart = Date.now();
+function resetIdle(){
+  idleStart = Date.now();
+  clearTimeout(idleTimer);
+  idleTimer = setTimeout(()=>{
+    if(window._auth?.currentUser){
+      doLogout();
+      toast('Sesi berakhir karena tidak aktif 10 menit','info');
+    }
+  }, IDLE_MS);
+  updateIdleBar();
+}
+function updateIdleBar(){
+  const pct = Math.max(0, 100 - ((Date.now()-idleStart)/IDLE_MS*100));
+  const bar = document.getElementById('idleBar');
+  if(bar) bar.style.width = pct+'%';
+  if(window._auth?.currentUser) setTimeout(updateIdleBar, 5000);
+}
+['touchstart','touchmove','click','keydown','scroll'].forEach(ev=>document.addEventListener(ev,resetIdle,{passive:true}));
+
+// ══════════════════════════════════════════
+// AUTH
+// ══════════════════════════════════════════
+async function initAuth(){
+  await waitFB();
+  const {onAuthStateChanged, setPersistence, browserLocalPersistence} = window._fbFns;
+  await setPersistence(window._auth, browserLocalPersistence);
+  onAuthStateChanged(window._auth, async user=>{
+    if(user){
+      await loadAllData();
+      go('scAdmin');
+      setTab(0, document.getElementById('bn0'));
+      resetIdle();
+      toast('Login berhasil! 👋','ok');
+    } else {
+      go('scClient');
+      renderClient();
+    }
+  });
+}
+
+// Email tersembunyi di kode - user hanya input username
+const ADMIN_EMAIL = 'admin@mis.com';
+
+async function doLogin(){
+  const user = document.getElementById('loginUser').value.trim();
+  const pw = document.getElementById('loginPw').value;
+  const btn = document.getElementById('loginBtn');
+  const err = document.getElementById('loginErr');
+  if(!user||!pw){toast('Username dan password wajib!','err');return;}
+  if(user.toLowerCase()!=='admin'){
+    err.textContent='Username salah!';err.style.display='block';
+    toast('Username salah!','err');return;
+  }
+  if(!window._fbReady||!window._fbFns){
+    err.textContent='Firebase belum siap, coba lagi';err.style.display='block';return;
+  }
+  btn.innerHTML='<span class="spinner"></span> Masuk...';
+  btn.disabled=true; err.style.display='none';
+  try {
+    const {signInWithEmailAndPassword}=window._fbFns;
+    await signInWithEmailAndPassword(window._auth, ADMIN_EMAIL, pw);
+  } catch(e){
+    console.error('Login error:',e.code,e.message);
+    let msg='Login gagal';
+    if(e.code==='auth/invalid-credential'||e.code==='auth/wrong-password') msg='Password salah!';
+    else if(e.code==='auth/too-many-requests') msg='Terlalu banyak percobaan, tunggu beberapa menit';
+    else if(e.code==='auth/network-request-failed') msg='Gagal koneksi, periksa internet';
+    else if(e.code==='auth/user-disabled') msg='Akun dinonaktifkan';
+    else msg='Error: '+(e.code||e.message);
+    err.textContent=msg; err.style.display='block';
+    toast(msg,'err');
+  }
+  btn.innerHTML='🚀 Masuk Admin'; btn.disabled=false;
+}
+
+async function doLogout(){
+  const {signOut} = window._fbFns;
+  clearTimeout(idleTimer);
+  await signOut(window._auth);
+  go('scClient');
+  renderClient();
+  toast('Berhasil keluar','info');
+}
+
+// ══════════════════════════════════════════
+// CLIENT
+// ══════════════════════════════════════════
+function renderClient(){
+  document.getElementById('coNameC').textContent = AP.name;
+  document.getElementById('coTagC').textContent = AP.tag;
+  document.getElementById('heroTitle').textContent = AP.heroTitle;
+  document.getElementById('heroDesc').textContent = AP.heroDesc;
+  setLogo(['logoC','logoA']);
+  applyBG(AP.bg || DEF_AP.bg);
+  const c = CT;
+  const msg = encodeURIComponent(c.msg||'Halo');
+  document.getElementById('waFab').innerHTML = `<a class="wa-fab" href="https://wa.me/${c.num}?text=${msg}" target="_blank"><span style="font-size:22px">💬</span><div><div style="font-size:10px;opacity:.8">Hubungi Kami</div><div>${c.name}</div></div></a>`;
+  const g = document.getElementById('svcGrid');
+  g.innerHTML = SVCS.length ? SVCS.map(s=>`<div class="svc-card"><span style="font-size:26px;flex-shrink:0;margin-top:2px">${s.icon}</span><div><div class="svc-name">${s.name}</div><div class="svc-desc">${s.desc}</div></div></div>`).join('') : `<div class="empty"><div class="ei">🛠</div><p>Belum ada layanan</p></div>`;
+}
+
+// ══════════════════════════════════════════
+// ADMIN TABS
+// ══════════════════════════════════════════
+function setTab(n,el){
+  document.querySelectorAll('.bnav-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  setLogo(['logoA']);
+  document.getElementById('coNameA').textContent = AP.name;
+  const body = document.getElementById('adminBody');
+  if(n===0) body.innerHTML = tabDash();
+  if(n===1) body.innerHTML = tabProj();
+  if(n===2) body.innerHTML = tabEst();
+  if(n===3) body.innerHTML = tabSet();
+}
+
+// ══════════════════════════════════════════
+// DASHBOARD
+// ══════════════════════════════════════════
+function tabDash(){
+  const tv = PROJECTS.reduce((a,p)=>a+(+p.value||0),0);
+  const tc = PROJECTS.reduce((a,p)=>a+(p.costs||[]).reduce((b,c)=>b+(+c.qty*(+c.price)||0),0),0);
+  const sf = tv - tc;
+  const recent = [...PROJECTS].reverse().slice(0,5);
+  return `<div class="stitle">Dashboard</div>
+  <div class="stat-grid">
+    <div class="card stat-card"><div class="stat-lbl">Total Project</div><div class="stat-val cv-blue">${PROJECTS.length}</div></div>
+    <div class="card stat-card"><div class="stat-lbl">Total Kontrak</div><div class="stat-val cv-gold" style="font-size:12px">${fmt(tv)}</div></div>
+    <div class="card stat-card"><div class="stat-lbl">Pengeluaran</div><div class="stat-val cv-red" style="font-size:12px">${fmt(tc)}</div></div>
+    <div class="card stat-card"><div class="stat-lbl">Sisa/Profit</div><div class="stat-val ${sf>=0?'cv-green':'cv-red'}" style="font-size:12px">${fmt(sf)}</div></div>
+  </div>
+  <div class="stitle">Project Terbaru</div>
+  <div class="card" style="padding:12px 14px">
+    ${recent.length?recent.map(p=>{
+      const sp=(p.costs||[]).reduce((a,c)=>a+(+c.qty*(+c.price)||0),0);
+      const si=(+p.value||0)-sp;
+      return `<div class="list-row" onclick="openDetail('${p.id}')">
+        <div><div style="font-weight:700;font-size:13px">${p.name}</div><div style="font-size:11px;color:var(--txt2)">${p.address||'-'}</div></div>
+        <div style="text-align:right;flex-shrink:0;margin-left:10px"><div style="font-size:12px;color:var(--gold)">${fmt(p.value)}</div><div style="font-size:11px;color:${si>=0?'var(--green)':'var(--red)'}">Sisa ${fmt(si)}</div></div>
+      </div>`;
+    }).join(''):'<div class="empty" style="padding:20px"><p>Belum ada project</p></div>'}
+  </div>
+  <div class="copyright">Copyright ©2026 SRISP</div>`;
+}
+
+// ══════════════════════════════════════════
+// PROJECTS
+// ══════════════════════════════════════════
+let editPid = null;
+function tabProj(){
+  return `<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:13px">
+    <div class="stitle" style="margin-bottom:0">Project</div>
+    <button class="btn btn-blue btn-sm" onclick="openProjM()">＋ Tambah</button>
+  </div>
+  ${PROJECTS.length?PROJECTS.map(p=>{
+    const sp=(p.costs||[]).reduce((a,c)=>a+(+c.qty*(+c.price)||0),0);
+    const si=(+p.value||0)-sp;
+    const pct=+p.value>0?Math.min(100,Math.round(sp/(+p.value)*100)):0;
+    return `<div class="proj-card">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:7px">
+        <div style="flex:1;padding-right:8px"><div style="font-weight:800;font-size:14px">${p.name}</div><div style="font-size:11px;color:var(--txt2);margin-top:2px">${p.address||'-'}</div></div>
+        <span class="badge ${p.status==='Selesai'?'b-green':p.status==='Pending'?'b-orange':'b-blue'}">${p.status||'Aktif'}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px">
+        <span style="color:var(--txt2)">Kontrak</span><span style="color:var(--gold);font-weight:700">${fmt(p.value)}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:9px">
+        <span style="color:var(--txt2)">Keluar <span style="color:var(--red)">${fmt(sp)}</span></span>
+        <span style="color:var(--txt2)">Sisa <span style="color:${si>=0?'var(--green)':'var(--red)'};font-weight:700">${fmt(si)}</span></span>
+      </div>
+      <div class="prog-bg" style="margin-bottom:10px"><div class="prog-fill" style="width:${pct}%;${pct>85?'background:linear-gradient(90deg,var(--red),#ff8080)':''}"></div></div>
+      <div style="display:flex;gap:7px">
+        <button class="btn btn-blue btn-xs" style="flex:1" onclick="openDetail('${p.id}')">📂 Detail</button>
+        <button class="btn btn-ghost btn-xs" onclick="openProjM('${p.id}')">✏️</button>
+        <button class="btn btn-red btn-xs" onclick="delProj('${p.id}')">🗑</button>
+      </div>
+    </div>`;
+  }).join(''):'<div class="empty"><div class="ei">📁</div><p>Belum ada project.<br>Tap ＋ Tambah untuk mulai.</p></div>'}`;
+}
+
+function openProjM(id=null){
+  editPid = id;
+  document.getElementById('mProjTitle').textContent = id?'✏️ Edit Project':'📁 Tambah Project';
+  const p = id ? PROJECTS.find(x=>x.id===id) : null;
+  document.getElementById('mProjFields').innerHTML = COLS.map(c=>{
+    const v = p?(p[c.key]||''):'';
+    if(c.type==='select'){
+      const opts=(c.opts||[]).map(o=>`<option value="${o}" ${v===o?'selected':''}>${o}</option>`).join('');
+      return `<div class="fg"><label class="lbl">${c.label}</label><select class="inp" id="pf_${c.key}">${opts}</select></div>`;
+    }
+    return `<div class="fg"><label class="lbl">${c.label}${c.req?' *':''}</label><input class="inp" type="${c.type||'text'}" id="pf_${c.key}" placeholder="${c.label}" value="${v}"></div>`;
+  }).join('');
+  openM('mProject');
+}
+
+async function saveProject(){
+  const data = {}; let ok = true;
+  COLS.forEach(c=>{
+    const el = document.getElementById('pf_'+c.key); if(!el) return;
+    data[c.key] = el.value;
+    if(c.req&&!el.value.trim()){ok=false;toast(`${c.label} wajib diisi!`,'err');}
+  });
+  if(!ok) return;
+  const btn = document.getElementById('saveProjBtn');
+  btn.innerHTML='<span class="spinner"></span>'; btn.disabled=true;
+  try {
+    if(editPid){
+      await fbSet(`projects/${editPid}`, data);
+      const i = PROJECTS.findIndex(p=>p.id===editPid);
+      if(i>-1) Object.assign(PROJECTS[i], data);
+      toast('Project diperbarui! ✅','ok');
+    } else {
+      const id = await fbAdd('projects', {...data, costs:[]});
+      PROJECTS.push({...data, id, costs:[]});
+      toast('Project ditambahkan! ✅','ok');
+    }
+    closeM('mProject');
+    setTab(1, document.getElementById('bn1'));
+  } catch(e){ toast('Gagal: '+e.message,'err'); }
+  btn.innerHTML='💾 Simpan'; btn.disabled=false;
+}
+
+async function delProj(id){
+  if(!confirm('Hapus project ini? Data tidak bisa dikembalikan.')) return;
+  try {
+    await fbDel(`projects/${id}`);
+    PROJECTS = PROJECTS.filter(p=>p.id!==id);
+    setTab(1, document.getElementById('bn1'));
+    toast('Project dihapus','info');
+  } catch(e){ toast('Gagal: '+e.message,'err'); }
+}
+
+// ══════════════════════════════════════════
+// DETAIL
+// ══════════════════════════════════════════
+let curPid = null;
+function openDetail(id){
+  curPid = id;
+  const p = PROJECTS.find(x=>x.id===id); if(!p) return;
+  document.getElementById('dtName').textContent = p.name;
+  document.getElementById('dtSub').textContent = p.address||'Tanpa Alamat';
+  go('scDetail');
+  renderDetail();
+}
+
+function renderDetail(){
+  const p = PROJECTS.find(x=>x.id===curPid); if(!p) return;
+  const costs = p.costs||[];
+  const sp = costs.reduce((a,c)=>a+(+c.qty*(+c.price)||0),0);
+  const nv = +p.value||0; const si = nv-sp;
+  const pct = nv>0?Math.min(100,Math.round(sp/nv*100)):0;
+  const infoRows = COLS.filter(c=>c.key!=='name').map(c=>{
+    let v=p[c.key]||'-'; if(c.type==='number')v=fmt(v);
+    return `<div class="recap-row" style="font-size:12px"><span style="color:var(--txt2)">${c.label}</span><span>${v}</span></div>`;
+  }).join('');
+
+  document.getElementById('detailBody').innerHTML=`
+  <div class="stat-grid">
+    <div class="card stat-card"><div class="stat-lbl">Kontrak</div><div class="stat-val cv-gold" style="font-size:12px">${fmt(nv)}</div></div>
+    <div class="card stat-card"><div class="stat-lbl">Keluar</div><div class="stat-val cv-red" style="font-size:12px">${fmt(sp)}</div></div>
+    <div class="card stat-card"><div class="stat-lbl">Sisa Dana</div><div class="stat-val ${si>=0?'cv-green':'cv-red'}" style="font-size:12px">${fmt(si)}</div></div>
+    <div class="card stat-card"><div class="stat-lbl">Item</div><div class="stat-val cv-blue">${costs.length}</div></div>
+  </div>
+  <div class="card2" style="padding:13px;margin-bottom:12px">
+    <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--txt2);margin-bottom:5px"><span>Dana Terpakai</span><span>${pct}%</span></div>
+    <div class="prog-bg"><div class="prog-fill" style="width:${pct}%;${pct>85?'background:linear-gradient(90deg,var(--red),#ff8080)':''}"></div></div>
+  </div>
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+    <div class="stitle" style="margin-bottom:0">💸 Pengeluaran</div>
+    <button class="btn btn-orange btn-sm" onclick="openM('mCost')">＋ Tambah</button>
+  </div>
+  <div class="card" style="padding:0;overflow:hidden;margin-bottom:12px">
+    <div class="tbl-wrap">
+      <table class="tbl">
+        <thead><tr><th>Keterangan</th><th>Jml</th><th>Harga</th><th>Total</th><th></th></tr></thead>
+        <tbody>${costs.length?costs.map((c,i)=>{
+          const tot=+c.qty*(+c.price)||0;
+          return `<tr><td>${c.item}</td><td>${c.qty}</td><td style="white-space:nowrap">${fmt(c.price)}</td><td style="color:var(--gold);font-weight:700;white-space:nowrap">${fmt(tot)}</td><td><button class="btn btn-red btn-xs" onclick="delCost('${c.id||i}',${i})">🗑</button></td></tr>`;
+        }).join(''):'<tr><td colspan="5" style="text-align:center;padding:22px;color:var(--txt2)">Belum ada pengeluaran</td></tr>'}</tbody>
+      </table>
+    </div>
+  </div>
+  <div class="card" style="padding:14px;margin-bottom:12px">
+    <div style="font-size:10px;font-weight:700;color:var(--txt2);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px">📊 Rekap Keuangan</div>
+    <div class="recap-row"><span style="color:var(--txt2)">Nilai Kontrak</span><span style="color:var(--gold)">${fmt(nv)}</span></div>
+    <div class="recap-row"><span style="color:var(--txt2)">Total Pengeluaran</span><span style="color:var(--red)">− ${fmt(sp)}</span></div>
+    <div class="recap-row"><span>Sisa Dana</span><span style="color:${si>=0?'var(--green)':'var(--red)'}">${fmt(si)}</span></div>
+  </div>
+  <div class="card" style="padding:14px">
+    <div style="font-size:10px;font-weight:700;color:var(--txt2);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px">📋 Info Project</div>
+    ${infoRows}
+  </div>`;
+}
+
+function updCostPrev(){
+  const q=+document.getElementById('cQty')?.value||0;
+  const pr=+document.getElementById('cPrice')?.value||0;
+  const el=document.getElementById('costPrev');
+  if(el) el.textContent='Total: '+fmt(q*pr);
+}
+
+async function saveCost(){
+  const item=document.getElementById('cItem').value.trim();
+  const qty=+document.getElementById('cQty').value||1;
+  const price=+document.getElementById('cPrice').value||0;
+  if(!item){toast('Keterangan wajib!','err');return;}
+  if(!price){toast('Harga wajib!','err');return;}
+  const p=PROJECTS.find(x=>x.id===curPid); if(!p) return;
+  try {
+    const id = await fbAdd(`projects/${curPid}/costs`, {item,qty,price});
+    if(!p.costs) p.costs=[];
+    p.costs.push({id,item,qty,price});
+    closeM('mCost');
+    document.getElementById('cItem').value='';
+    document.getElementById('cQty').value='1';
+    document.getElementById('cPrice').value='';
+    renderDetail();
+    toast('Pengeluaran ditambahkan! ✅','ok');
+  } catch(e){ toast('Gagal: '+e.message,'err'); }
+}
+
+async function delCost(cid, idx){
+  if(!confirm('Hapus item ini?')) return;
+  const p=PROJECTS.find(x=>x.id===curPid); if(!p) return;
+  try {
+    if(cid && isNaN(cid)) await fbDel(`projects/${curPid}/costs/${cid}`);
+    p.costs.splice(idx,1);
+    renderDetail();
+    toast('Item dihapus','info');
+  } catch(e){ toast('Gagal: '+e.message,'err'); }
+}
+
+// ══════════════════════════════════════════
+// PDF & EXCEL
+// ══════════════════════════════════════════
+function expPDF(){
+  const p=PROJECTS.find(x=>x.id===curPid); if(!p) return;
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF();
+  const costs=p.costs||[];
+  const sp=costs.reduce((a,c)=>a+(+c.qty*(+c.price)||0),0);
+  const si=(+p.value||0)-sp;
+  doc.setFillColor(7,12,23); doc.rect(0,0,210,28,'F');
+  doc.setFontSize(15);doc.setFont('helvetica','bold');doc.setTextColor(255,255,255);
+  doc.text(AP.name,14,12);
+  doc.setFontSize(9);doc.setFont('helvetica','normal');doc.setTextColor(100,160,200);
+  doc.text(AP.tag,14,19); doc.text('Laporan Project',14,25);
+  doc.setTextColor(30,30,30);
+  let y=36;
+  doc.setFontSize(13);doc.setFont('helvetica','bold');doc.text(p.name,14,y);y+=8;
+  doc.setFontSize(9);doc.setFont('helvetica','normal');
+  COLS.forEach(c=>{let v=p[c.key]||'-';if(c.type==='number')v=fmt(v);doc.text(`${c.label}: ${v}`,14,y);y+=6;});
+  y+=4;
+  doc.setFillColor(225,235,255);doc.rect(14,y-4,182,8,'F');
+  doc.setFont('helvetica','bold');doc.setFontSize(9);doc.setTextColor(30,30,30);
+  doc.text('Keterangan',15,y);doc.text('Jml',95,y);doc.text('Harga Satuan',107,y);doc.text('Total',163,y);
+  doc.setFont('helvetica','normal');y+=7;
+  costs.forEach((c,i)=>{
+    if(i%2===0){doc.setFillColor(248,250,255);doc.rect(14,y-4,182,7,'F');}
+    const tot=+c.qty*(+c.price)||0;
+    doc.text(String(c.item).substring(0,35),15,y);
+    doc.text(String(c.qty),95,y);
+    doc.text(fmt(c.price),107,y);
+    doc.text(fmt(tot),163,y);
+    y+=7; if(y>265){doc.addPage();y=20;}
+  });
+  y+=4;doc.setDrawColor(180,200,220);doc.line(14,y,196,y);y+=7;
+  doc.setFont('helvetica','bold');doc.setFontSize(10);
+  doc.text('Total Pengeluaran:',14,y);doc.text(fmt(sp),140,y);y+=7;
+  doc.text('Nilai Kontrak:',14,y);doc.text(fmt(p.value||0),140,y);y+=7;
+  doc.setTextColor(si>=0?0:180,si>=0?140:0,si>=0?70:0);
+  doc.text('Sisa Dana:',14,y);doc.text(fmt(si),140,y);
+  y+=14;doc.setFontSize(8);doc.setTextColor(150,150,150);
+  doc.text('Copyright ©2026 SRISP',14,y);
+
+  const blob=doc.output('blob');
+  const url=URL.createObjectURL(blob);
+  document.getElementById('pdfFrame').src=url;
+  document.getElementById('pdfDlBtn').onclick=()=>{
+    const a=document.createElement('a');
+    a.href=url; a.download=`Project_${p.name.replace(/\s/g,'_')}.pdf`; a.click();
+    toast('PDF diunduh!','ok');
+  };
+  document.getElementById('pdfWrap').classList.add('open');
+}
+function closePDF(){
+  document.getElementById('pdfWrap').classList.remove('open');
+  document.getElementById('pdfFrame').src='';
+}
+
+function expXLS(){
+  const p=PROJECTS.find(x=>x.id===curPid); if(!p) return;
+  const costs=p.costs||[];
+  const sp=costs.reduce((a,c)=>a+(+c.qty*(+c.price)||0),0);
+  const rows=costs.map(c=>({'Keterangan':c.item,'Jumlah':+c.qty,'Harga Satuan':+c.price,'Total':+c.qty*(+c.price)||0}));
+  rows.push({}); rows.push({'Keterangan':'Total Pengeluaran','Total':sp});
+  rows.push({'Keterangan':'Nilai Kontrak','Total':+p.value||0});
+  rows.push({'Keterangan':'Sisa Dana','Total':(+p.value||0)-sp});
+  rows.push({}); rows.push({'Keterangan':'Copyright ©2026 SRISP'});
+  const ws=XLSX.utils.json_to_sheet(rows);
+  const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,'Pengeluaran');
+  XLSX.writeFile(wb,`Project_${p.name.replace(/\s/g,'_')}.xlsx`);
+  toast('Excel diunduh! ✅','ok');
+}
+
+// ══════════════════════════════════════════
+// ESTIMASI
+// ══════════════════════════════════════════
+let editEid=null;
+function tabEst(){
+  const opts=ESTS.map(t=>`<option value="${t.id}">${t.name}</option>`).join('');
+  return `<div class="stitle">Simulasi Estimasi</div>
+  <div class="card" style="padding:14px;margin-bottom:12px">
+    <div class="fg" style="margin-bottom:0"><label class="lbl">Tipe Pekerjaan</label>
+    <select class="inp" id="estSel" onchange="doSelEst()">${'<option value="">-- Pilih Tipe --</option>'+opts}</select></div>
+  </div>
+  <div id="estFormWrap"></div>
+  <div id="estResultWrap"></div>
+  <div class="div"></div>
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+    <div class="stitle" style="margin-bottom:0">⚙️ Kelola Tipe</div>
+    <button class="btn btn-blue btn-sm" onclick="openEstM()">＋ Tambah</button>
+  </div>
+  ${ESTS.map(t=>`<div class="est-item">
+    <div><div style="font-weight:700;font-size:13px">${t.name}</div><div style="font-size:11px;color:var(--txt2)">${fmt(t.price)} / ${t.unit}${t.note?' · '+t.note:''}</div></div>
+    <div style="display:flex;gap:6px;flex-shrink:0">
+      <button class="btn btn-ghost btn-xs" onclick="openEstM('${t.id}')">✏️</button>
+      <button class="btn btn-red btn-xs" onclick="delEst('${t.id}')">🗑</button>
+    </div>
+  </div>`).join('')||'<div class="empty" style="padding:16px"><p>Belum ada tipe estimasi</p></div>'}`;
+}
+
+function doSelEst(){
+  const id=document.getElementById('estSel').value;
+  const t=ESTS.find(x=>x.id===id);
+  const fw=document.getElementById('estFormWrap');
+  const rw=document.getElementById('estResultWrap');
+  if(!t){fw.innerHTML='';rw.innerHTML='';return;}
+  fw.innerHTML=`<div class="card" style="padding:14px;margin-bottom:12px">
+    <div class="fg"><label class="lbl">Jumlah (${t.unit})</label><input type="number" class="inp" id="eQty" placeholder="0" oninput="calcEstResult()"></div>
+    <div class="fg"><label class="lbl">Harga per ${t.unit} (Rp)</label><input type="number" class="inp" id="eUprice" value="${t.price}" oninput="calcEstResult()"></div>
+    <div class="fg" style="margin-bottom:0"><label class="lbl">Diskon (%)</label><input type="number" class="inp" id="eDisc" placeholder="0" oninput="calcEstResult()"></div>
+    ${t.note?`<div style="font-size:11px;color:var(--txt2);margin-top:10px;padding:9px;background:rgba(61,142,255,.05);border-radius:8px;border:1px solid var(--bdr)">📝 ${t.note}</div>`:''}
+  </div>`;
+  calcEstResult();
+}
+function calcEstResult(){
+  const id=document.getElementById('estSel')?.value;
+  const t=ESTS.find(x=>x.id===id); if(!t) return;
+  const qty=+document.getElementById('eQty')?.value||0;
+  const up=+document.getElementById('eUprice')?.value||t.price;
+  const disc=+document.getElementById('eDisc')?.value||0;
+  const sub=qty*up; const da=sub*disc/100; const total=sub-da;
+  document.getElementById('estResultWrap').innerHTML=`<div class="card2" style="padding:14px;margin-bottom:12px">
+    <div style="font-size:10px;font-weight:700;color:var(--txt2);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px">💰 Hasil Estimasi</div>
+    <div class="recap-row" style="font-size:12px"><span style="color:var(--txt2)">Tipe</span><span>${t.name}</span></div>
+    <div class="recap-row" style="font-size:12px"><span style="color:var(--txt2)">Volume</span><span>${qty} ${t.unit}</span></div>
+    <div class="recap-row" style="font-size:12px"><span style="color:var(--txt2)">Harga/satuan</span><span>${fmt(up)}</span></div>
+    <div class="recap-row" style="font-size:12px"><span style="color:var(--txt2)">Subtotal</span><span>${fmt(sub)}</span></div>
+    ${disc?`<div class="recap-row" style="font-size:12px"><span style="color:var(--txt2)">Diskon ${disc}%</span><span style="color:var(--red)">− ${fmt(da)}</span></div>`:''}
+    <div class="recap-row"><span>TOTAL</span><span style="color:var(--green)">${fmt(total)}</span></div>
+  </div>`;
+}
+
+function openEstM(id=null){
+  editEid=id;
+  document.getElementById('mEstTitle').textContent=id?'✏️ Edit Tipe':'🧮 Tambah Tipe Estimasi';
+  const t=id?ESTS.find(x=>x.id===id):null;
+  document.getElementById('etName').value=t?.name||'';
+  document.getElementById('etUnit').value=t?.unit||'';
+  document.getElementById('etPrice').value=t?.price||'';
+  document.getElementById('etNote').value=t?.note||'';
+  openM('mEst');
+}
+async function saveEstType(){
+  const name=document.getElementById('etName').value.trim();
+  const unit=document.getElementById('etUnit').value.trim();
+  const price=+document.getElementById('etPrice').value||0;
+  const note=document.getElementById('etNote').value.trim();
+  if(!name||!unit){toast('Nama dan satuan wajib!','err');return;}
+  try {
+    if(editEid){
+      await fbSet(`estimasi/${editEid}`,{name,unit,price,note});
+      const t=ESTS.find(x=>x.id===editEid); if(t)Object.assign(t,{name,unit,price,note});
+    } else {
+      const id=await fbAdd('estimasi',{name,unit,price,note});
+      ESTS.push({id,name,unit,price,note});
+    }
+    closeM('mEst'); setTab(2,document.getElementById('bn2'));
+    toast('Tipe disimpan! ✅','ok');
+  } catch(e){ toast('Gagal: '+e.message,'err'); }
+}
+async function delEst(id){
+  if(!confirm('Hapus tipe ini?')) return;
+  try {
+    await fbDel(`estimasi/${id}`);
+    ESTS=ESTS.filter(x=>x.id!==id);
+    setTab(2,document.getElementById('bn2'));
+    toast('Dihapus','info');
+  } catch(e){ toast('Gagal: '+e.message,'err'); }
+}
+
+// ══════════════════════════════════════════
+// SETTINGS
+// ══════════════════════════════════════════
+let editSid=null;
+function tabSet(){
+  return `<div class="stitle">Pengaturan</div>
+
+  <!-- BG PICKER -->
+  <div class="card" style="padding:15px;margin-bottom:11px">
+    <div style="font-weight:700;color:var(--cyan);font-size:12px;margin-bottom:12px">🖼 Background Aplikasi</div>
+    <div class="bg-preview" id="bgPrev" style="background-image:url('${AP.bg||DEF_AP.bg}')">
+      <span style="position:relative;z-index:1;font-size:28px">🏗</span>
+    </div>
+    <div class="fg"><label class="lbl">URL Gambar Web</label><input class="inp" id="bgUrl" value="${AP.bg||''}" placeholder="https://...gambar.jpg"></div>
+    <div class="fg" style="margin-bottom:0">
+      <label class="lbl">Atau pilih dari file</label>
+      <input type="file" accept="image/*" class="inp" id="bgFile" style="padding:8px" onchange="onBgFile(this)">
+    </div>
+    <div style="display:flex;gap:8px;margin-top:12px">
+      <button class="btn btn-ghost btn-sm" style="flex:1" onclick="previewBgUrl()">👁 Preview</button>
+      <button class="btn btn-blue btn-sm" style="flex:2" onclick="saveBG()">💾 Simpan BG</button>
+    </div>
+  </div>
+
+  <!-- APPEARANCE -->
+  <div class="card" style="padding:15px;margin-bottom:11px">
+    <div style="font-weight:700;color:var(--cyan);font-size:12px;margin-bottom:12px">🎨 Tampilan Perusahaan</div>
+    <div class="fg"><label class="lbl">Nama Perusahaan</label><input class="inp" id="saN" value="${AP.name}"></div>
+    <div class="fg"><label class="lbl">Tagline</label><input class="inp" id="saT" value="${AP.tag}"></div>
+    <div class="fg"><label class="lbl">Judul Hero</label><input class="inp" id="saH" value="${AP.heroTitle}"></div>
+    <div class="fg"><label class="lbl">Deskripsi Hero</label><textarea class="inp" id="saD">${AP.heroDesc}</textarea></div>
+    <div class="fg"><label class="lbl">URL Logo</label><input class="inp" id="saL" value="${AP.logoUrl||''}" placeholder="https://..."></div>
+    <div class="fg" style="margin-bottom:0"><label class="lbl">Emoji Logo</label><input class="inp" id="saE" value="${AP.logoEmoji||'🔧'}"></div>
+    <button class="btn btn-green btn-sm" style="width:100%;margin-top:12px;justify-content:center" onclick="saveAp()">💾 Simpan Tampilan</button>
+  </div>
+
+  <!-- CONTACT -->
+  <div class="card" style="padding:15px;margin-bottom:11px">
+    <div style="font-weight:700;color:var(--cyan);font-size:12px;margin-bottom:12px">📱 Kontak WhatsApp</div>
+    <div class="fg"><label class="lbl">Nama Kontak</label><input class="inp" id="scN" value="${CT.name}"></div>
+    <div class="fg"><label class="lbl">No WA (tanpa +)</label><input class="inp" id="scW" value="${CT.num}"></div>
+    <div class="fg" style="margin-bottom:0"><label class="lbl">Pesan Default</label><textarea class="inp" id="scM">${CT.msg}</textarea></div>
+    <button class="btn btn-green btn-sm" style="width:100%;margin-top:12px;justify-content:center" onclick="saveCt()">💾 Simpan Kontak</button>
+  </div>
+
+  <!-- SERVICES -->
+  <div class="card" style="padding:15px;margin-bottom:11px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+      <div style="font-weight:700;color:var(--cyan);font-size:12px">🛠 Kelola Layanan</div>
+      <button class="btn btn-blue btn-xs" onclick="openSvcM()">＋ Tambah</button>
+    </div>
+    ${SVCS.map(s=>`<div class="est-item">
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="font-size:22px">${s.icon}</span>
+        <div><div style="font-weight:700;font-size:13px">${s.name}</div><div style="font-size:11px;color:var(--txt2)">${s.desc.substring(0,40)}…</div></div>
+      </div>
+      <div style="display:flex;gap:6px;flex-shrink:0">
+        <button class="btn btn-ghost btn-xs" onclick="openSvcM('${s.id}')">✏️</button>
+        <button class="btn btn-red btn-xs" onclick="delSvc('${s.id}')">🗑</button>
+      </div>
+    </div>`).join('')||'<div class="empty" style="padding:14px"><p>Belum ada layanan</p></div>'}
+  </div>
+
+  <!-- COLUMNS -->
+  <div class="card" style="padding:15px;margin-bottom:20px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+      <div style="font-weight:700;color:var(--cyan);font-size:12px">📋 Kolom Project</div>
+      <button class="btn btn-blue btn-xs" onclick="addCol()">＋ Kolom</button>
+    </div>
+    ${COLS.map((c,i)=>`
+      <div style="margin-bottom:9px;padding:10px;background:rgba(255,255,255,.03);border:1px solid var(--bdr);border-radius:9px">
+        <div style="display:flex;gap:7px;margin-bottom:6px">
+          <input class="inp" value="${c.label}" style="flex:2;padding:8px 10px;font-size:12px" onchange="upCol(${i},'label',this.value)" placeholder="Nama Kolom">
+          <select class="inp" style="flex:1;min-width:80px;padding:8px 10px;font-size:12px" onchange="upCol(${i},'type',this.value)">
+            <option value="text" ${c.type==='text'?'selected':''}>Teks</option>
+            <option value="number" ${c.type==='number'?'selected':''}>Angka</option>
+            <option value="select" ${c.type==='select'?'selected':''}>Pilihan</option>
+          </select>
+          ${(c.key==='name'||c.key==='value')?`<span style="font-size:16px;opacity:.3;align-self:center">🔒</span>`:`<button class="btn btn-red btn-xs" onclick="rmCol(${i})">🗑</button>`}
+        </div>
+        ${c.type==='select'?`<input class="inp" style="font-size:11px;padding:7px 10px" value="${(c.opts||[]).join(',')}" placeholder="opsi1,opsi2,opsi3" onchange="upCol(${i},'opts',this.value.split(',').map(x=>x.trim()).filter(Boolean))">`:''}`
+    ).join('')}
+    <button class="btn btn-green btn-sm" style="width:100%;margin-top:8px;justify-content:center" onclick="saveCols()">💾 Simpan Kolom</button>
+  </div>
+
+  <!-- GANTI PASSWORD -->
+  <div class="card" style="padding:15px;margin-bottom:20px">
+    <div style="font-weight:700;color:var(--cyan);font-size:12px;margin-bottom:12px">🔐 Ganti Password Login</div>
+    <div class="fg"><label class="lbl">Password Lama</label><input type="password" class="inp" id="cpOld" placeholder="Password saat ini"></div>
+    <div class="fg"><label class="lbl">Password Baru</label><input type="password" class="inp" id="cpNew" placeholder="Password baru"></div>
+    <div class="fg" style="margin-bottom:0"><label class="lbl">Ulangi Password Baru</label><input type="password" class="inp" id="cpNew2" placeholder="Ulangi password baru"></div>
+    <button class="btn btn-orange btn-sm" style="width:100%;margin-top:12px;justify-content:center" onclick="changePw()">🔒 Ganti Password</button>
+  </div>
+
+  <div class="copyright">Copyright ©2026 SRISP</div>`;
+}
+
+// BG
+function previewBgUrl(){
+  const url=document.getElementById('bgUrl').value.trim();
+  if(url){
+    document.getElementById('bgPrev').style.backgroundImage=`url('${url}')`;
+    applyBG(url);
+  }
+}
+function onBgFile(input){
+  const file=input.files[0]; if(!file) return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    const url=e.target.result;
+    document.getElementById('bgPrev').style.backgroundImage=`url('${url}')`;
+    document.getElementById('bgUrl').value='(file lokal)';
+    applyBG(url);
+    AP._bgLocal=url;
+  };
+  reader.readAsDataURL(file);
+}
+async function saveBG(){
+  const urlInput=document.getElementById('bgUrl').value.trim();
+  const bgVal = AP._bgLocal || (urlInput!=='(file lokal)'?urlInput:AP.bg);
+  AP.bg=bgVal; delete AP._bgLocal;
+  applyBG(bgVal);
+  try {
+    // For base64 (local file), store in Firestore (note: max 1MB)
+    await fbSet('config/appearance', {bg: bgVal});
+    toast('Background disimpan! ✅','ok');
+  } catch(e){ toast('Gagal simpan BG: '+e.message,'err'); }
+}
+
+async function saveAp(){
+  AP.name=document.getElementById('saN').value;
+  AP.tag=document.getElementById('saT').value;
+  AP.heroTitle=document.getElementById('saH').value;
+  AP.heroDesc=document.getElementById('saD').value;
+  AP.logoUrl=document.getElementById('saL').value;
+  AP.logoEmoji=document.getElementById('saE').value;
+  try {
+    await fbSet('config/appearance', AP);
+    setLogo(['logoC','logoA']);
+    document.getElementById('coNameA').textContent=AP.name;
+    renderClient();
+    toast('Tampilan disimpan! ✅','ok');
+  } catch(e){ toast('Gagal: '+e.message,'err'); }
+}
+async function saveCt(){
+  CT.name=document.getElementById('scN').value;
+  CT.num=document.getElementById('scW').value;
+  CT.msg=document.getElementById('scM').value;
+  try {
+    await fbSet('config/contact', CT);
+    renderClient();
+    toast('Kontak disimpan! ✅','ok');
+  } catch(e){ toast('Gagal: '+e.message,'err'); }
+}
+
+function openSvcM(id=null){
+  editSid=id;
+  document.getElementById('mSvcTitle').textContent=id?'✏️ Edit Layanan':'🛠 Tambah Layanan';
+  const s=id?SVCS.find(x=>x.id===id):null;
+  document.getElementById('sIcon').value=s?.icon||'🔧';
+  document.getElementById('sName').value=s?.name||'';
+  document.getElementById('sDesc').value=s?.desc||'';
+  openM('mSvc');
+}
+async function saveSvc(){
+  const icon=document.getElementById('sIcon').value||'🔧';
+  const name=document.getElementById('sName').value.trim();
+  const desc=document.getElementById('sDesc').value.trim();
+  if(!name){toast('Nama wajib!','err');return;}
+  try {
+    if(editSid){
+      await fbSet(`services/${editSid}`,{icon,name,desc});
+      const s=SVCS.find(x=>x.id===editSid); if(s)Object.assign(s,{icon,name,desc});
+    } else {
+      const id=await fbAdd('services',{icon,name,desc});
+      SVCS.push({id,icon,name,desc});
+    }
+    closeM('mSvc'); setTab(3,document.getElementById('bn3')); renderClient();
+    toast('Layanan disimpan! ✅','ok');
+  } catch(e){ toast('Gagal: '+e.message,'err'); }
+}
+async function delSvc(id){
+  if(!confirm('Hapus layanan ini?')) return;
+  try {
+    await fbDel(`services/${id}`);
+    SVCS=SVCS.filter(x=>x.id!==id);
+    setTab(3,document.getElementById('bn3')); renderClient();
+    toast('Dihapus','info');
+  } catch(e){ toast('Gagal: '+e.message,'err'); }
+}
+
+function upCol(i,k,v){ COLS[i][k]=v; }
+function addCol(){ COLS.push({key:'c'+Date.now(),label:'Kolom Baru',type:'text',req:false}); setTab(3,document.getElementById('bn3')); }
+function rmCol(i){
+  if(COLS[i].key==='name'||COLS[i].key==='value'){toast('Tidak bisa dihapus','err');return;}
+  if(!confirm('Hapus kolom ini?')) return;
+  COLS.splice(i,1); setTab(3,document.getElementById('bn3'));
+}
+async function changePw(){
+  const oldPw = document.getElementById('cpOld').value;
+  const newPw = document.getElementById('cpNew').value;
+  const newPw2 = document.getElementById('cpNew2').value;
+  if(!oldPw||!newPw||!newPw2){toast('Semua field wajib diisi!','err');return;}
+  if(newPw!==newPw2){toast('Password baru tidak sama!','err');return;}
+  if(newPw.length<6){toast('Password minimal 6 karakter!','err');return;}
+  try {
+    const {signInWithEmailAndPassword, updatePassword} = window._fbFns;
+    const user = window._auth.currentUser;
+    // Re-authenticate dulu
+    await signInWithEmailAndPassword(window._auth, ADMIN_EMAIL, oldPw);
+    await updatePassword(user, newPw);
+    document.getElementById('cpOld').value='';
+    document.getElementById('cpNew').value='';
+    document.getElementById('cpNew2').value='';
+    toast('Password berhasil diubah! ✅','ok');
+  } catch(e){
+    let msg = 'Gagal ganti password';
+    if(e.code==='auth/wrong-password'||e.code==='auth/invalid-credential') msg='Password lama salah!';
+    else if(e.code==='auth/weak-password') msg='Password baru terlalu lemah!';
+    else msg = 'Error: '+(e.code||e.message);
+    toast(msg,'err');
+  }
+}
+
+async function saveCols(){
+  try {
+    await fbSet('config/columns',{data:COLS});
+    toast('Kolom disimpan! ✅','ok');
+  } catch(e){ toast('Gagal: '+e.message,'err'); }
+}
+
+// ══════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════
+applyBG(DEF_AP.bg);
+renderClient();
+initAuth();
+</script>
+</body>
+</html>
