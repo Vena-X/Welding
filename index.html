@@ -228,7 +228,7 @@ select.inp{cursor:pointer}
 <div id="scClient" class="screen active">
   <div class="topbar">
     <div class="logo-wrap">
-      <div class="logo-box" id="logoC">🌐</div>
+      <div class="logo-box" id="logoC">🔧</div>
       <div>
         <div class="co-name" id="coNameC">MEULIGOE INDAH STEEL</div>
         <div class="co-tag" id="coTagC">Welding & Engineering</div>
@@ -239,7 +239,7 @@ select.inp{cursor:pointer}
   <div class="scroll-area">
     <div class="hero">
       <h1 id="heroTitle">Solusi Fabrikasi & Rekayasa Baja Terpercaya</h1>
-      <p id="heroDesc">Menyediakan layanan pengelasan, konstruksi baja, dan rekayasa berkualitas tinggi.</p>
+      <p id="heroDesc">Kami menyediakan layanan pengelasan, konstruksi baja, dan rekayasa berkualitas tinggi.</p>
     </div>
     <div class="stitle">Layanan Kami</div>
     <div id="svcGrid"></div>
@@ -290,6 +290,7 @@ select.inp{cursor:pointer}
       </div>
     </div>
     <div style="display:flex;gap:7px">
+      <button class="btn btn-ghost btn-sm" onclick="go('scClient');renderClient()">👁</button>
       <button class="btn btn-red btn-sm" onclick="doLogout()">↩</button>
     </div>
   </div>
@@ -388,11 +389,11 @@ function waitFB(){ return new Promise(res=>{ if(window._fbReady){res();return;} 
 const DEF_AP = {
   name:'MEULIGOE INDAH STEEL', tag:'Welding & Engineering Solution',
   heroTitle:'Solusi Fabrikasi & Rekayasa Baja Terpercaya',
-  heroDesc:'Menyediakan layanan pengelasan, konstruksi baja, dan rekayasa berkualitas tinggi untuk kebutuhan industri dan komersial.',
-  logoUrl:'', logoEmoji:🌐',
+  heroDesc:'Kami menyediakan layanan pengelasan, konstruksi baja, dan rekayasa berkualitas tinggi untuk kebutuhan industri dan komersial Anda.',
+  logoUrl:'', logoEmoji:'🌐',
   bg: 'https://images.unsplash.com/photo-1565891741441-64926e441838?w=1200&q=80'
 };
-const DEF_CT = {name:'Alex',num:'6281262039719',msg:'Halo, saya ingin bertanya mengenai layanan Meuligoe Indah Steel'};
+const DEF_CT = {name:'Alex Mando',num:'6281262039719',msg:'Halo, saya ingin bertanya mengenai layanan Meuligoe Indah Steel'};
 const DEF_COLS = [
   {key:'name',label:'Nama Project',type:'text',req:true},
   {key:'value',label:'Nilai Kontrak (Rp)',type:'number',req:true},
