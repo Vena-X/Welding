@@ -11,6 +11,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence, updatePassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import { getFirestore, doc, getDoc, setDoc, collection, getDocs, addDoc, updateDoc, deleteDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
 const firebaseConfig = {
   apiKey: "AIzaSyBvrs_uaQvVQvUOemHcq2r3raeBBztCg_g",
   authDomain: "vena-welding-6f88c.firebaseapp.com",
@@ -19,10 +20,14 @@ const firebaseConfig = {
   messagingSenderId: "72576618344",
   appId: "1:72576618344:web:327a23ff7b20acf6b590dd"
 };
+
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
-window._auth = auth; window._db = db;
+
+// ── expose globals ──
+window._auth = auth;
+window._db = db;
 window._fbFns = {
   signInWithEmailAndPassword, signOut, onAuthStateChanged,
   setPersistence, browserLocalPersistence, updatePassword,
@@ -32,6 +37,7 @@ window._fbFns = {
 window._fbReady = true;
 document.dispatchEvent(new Event('fbReady'));
 </script>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
@@ -43,30 +49,40 @@ document.dispatchEvent(new Event('fbReady'));
   --glass:rgba(255,255,255,0.055);--glass2:rgba(255,255,255,0.09);
   --bdr:rgba(61,142,255,0.2);--bdr2:rgba(61,142,255,0.42);
   --txt:#ddeeff;--txt2:#6a8fb0;
-  --sh:0 4px 20px rgba(0,0,0,0.5);--bnav:62px;
+  --sh:0 4px 20px rgba(0,0,0,0.5);
+  --bnav:62px;
 }
 html,body{height:100%;overflow:hidden}
 body{font-family:'Exo 2',sans-serif;background:var(--bg);color:var(--txt);font-size:14px}
+
+/* BG LAYER */
 #bgLayer{position:fixed;inset:0;z-index:0;background-size:cover;background-position:center;transition:opacity .5s}
 #bgLayer::after{content:'';position:absolute;inset:0;background:rgba(7,12,23,0.72)}
 body::after{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(61,142,255,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(61,142,255,0.025) 1px,transparent 1px);background-size:32px 32px;pointer-events:none;z-index:0}
+
+/* SCREENS */
 .screen{position:fixed;inset:0;display:none;flex-direction:column;z-index:1}
 .screen.active{display:flex}
 .scroll-area{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding:14px 14px 20px}
 .scroll-area::-webkit-scrollbar{width:3px}
 .scroll-area::-webkit-scrollbar-thumb{background:var(--bdr2);border-radius:2px}
+
+/* TOPBAR */
 .topbar{flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:10px 13px;background:rgba(7,12,23,0.93);backdrop-filter:blur(18px);border-bottom:1px solid var(--bdr);min-height:56px;z-index:10}
 .logo-wrap{display:flex;align-items:center;gap:10px}
 .logo-box{width:36px;height:36px;border-radius:9px;background:rgba(61,142,255,0.1);border:1px solid var(--bdr);display:flex;align-items:center;justify-content:center;font-size:18px;overflow:hidden;flex-shrink:0}
 .logo-box img{width:100%;height:100%;object-fit:contain}
 .co-name{font-family:'Orbitron',monospace;font-size:11px;font-weight:900;background:linear-gradient(90deg,var(--blue),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:.5px;line-height:1.2}
 .co-tag{font-size:9px;color:var(--txt2);letter-spacing:1.5px;text-transform:uppercase;margin-top:1px}
+
+/* BOTTOM NAV */
 .bottom-nav{flex-shrink:0;display:flex;align-items:stretch;background:rgba(5,9,18,0.97);backdrop-filter:blur(20px);border-top:1px solid var(--bdr);height:var(--bnav);padding-bottom:env(safe-area-inset-bottom,0px)}
-.bnav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;border:none;background:none;font-family:'Exo 2',sans-serif;font-size:9px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;color:var(--txt2);transition:color .2s;padding:0;position:relative}
+.bnav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;border:none;background:none;font-family:'Exo 2',sans-serif;font-size:9px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;color:var(--txt2);transition:color .2s;padding:0}
 .bnav-btn .ni{font-size:20px;line-height:1;transition:filter .2s}
 .bnav-btn.active{color:var(--blue)}
 .bnav-btn.active .ni{filter:drop-shadow(0 0 6px var(--blue))}
-.notif-badge{position:absolute;top:6px;right:18px;width:8px;height:8px;background:var(--red);border-radius:50%;border:1px solid var(--bg);box-shadow:0 0 6px var(--red)}
+
+/* BUTTONS */
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:9px 16px;border:none;border-radius:50px;font-family:'Exo 2',sans-serif;font-weight:700;font-size:12px;cursor:pointer;transition:transform .15s;position:relative;overflow:hidden;letter-spacing:.3px;white-space:nowrap}
 .btn:active{transform:scale(.93)}
 .btn-blue{background:linear-gradient(135deg,#3d8eff,#00cfff);color:#001a3d;box-shadow:0 3px 14px rgba(61,142,255,.45)}
@@ -78,8 +94,12 @@ body::after{content:'';position:fixed;inset:0;background-image:linear-gradient(r
 .btn-sm{padding:7px 13px;font-size:11px}
 .btn-xs{padding:5px 10px;font-size:10px}
 .btn-full{width:100%;padding:13px}
+
+/* CARDS */
 .card{background:var(--glass);backdrop-filter:blur(14px);border:1px solid var(--bdr);border-radius:14px;box-shadow:var(--sh),inset 0 1px 0 rgba(255,255,255,.05)}
 .card2{background:var(--glass2);backdrop-filter:blur(18px);border:1px solid var(--bdr2);border-radius:12px;box-shadow:var(--sh),0 0 18px rgba(61,142,255,.14)}
+
+/* INPUTS */
 .inp{background:rgba(255,255,255,.05);border:1px solid var(--bdr);border-radius:10px;color:var(--txt);padding:11px 13px;font-family:'Exo 2',sans-serif;font-size:14px;width:100%;outline:none;transition:all .2s}
 .inp:focus{border-color:var(--blue);background:rgba(61,142,255,.08);box-shadow:0 0 0 3px rgba(61,142,255,.12)}
 .inp::placeholder{color:var(--txt2)}
@@ -87,18 +107,26 @@ textarea.inp{resize:vertical;min-height:70px}
 select.inp{cursor:pointer}
 .lbl{display:block;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--cyan);margin-bottom:5px}
 .fg{margin-bottom:12px}
+
+/* SECTION TITLE */
 .stitle{font-family:'Orbitron',monospace;font-size:11px;font-weight:700;color:var(--cyan);letter-spacing:2px;text-transform:uppercase;margin-bottom:13px;display:flex;align-items:center;gap:10px}
 .stitle::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--bdr2),transparent)}
+
+/* STATS */
 .stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
 .stat-card{padding:13px 14px;border-radius:12px}
 .stat-lbl{font-size:9px;color:var(--txt2);font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:5px}
 .stat-val{font-family:'Orbitron',monospace;font-size:15px;font-weight:700;line-height:1.2}
 .cv-blue{color:var(--blue)}.cv-green{color:var(--green)}.cv-red{color:var(--red)}.cv-gold{color:var(--gold)}
+
+/* TABLE */
 .tbl-wrap{overflow-x:auto;border-radius:12px}
-.tbl{width:100%;border-collapse:collapse;min-width:400px;font-size:12px}
+.tbl{width:100%;border-collapse:collapse;min-width:380px;font-size:12px}
 .tbl th{background:rgba(61,142,255,.1);color:var(--cyan);font-weight:700;letter-spacing:.5px;text-transform:uppercase;font-size:10px;padding:9px 10px;text-align:left;border-bottom:1px solid var(--bdr)}
 .tbl td{padding:9px 10px;border-bottom:1px solid rgba(255,255,255,.04);vertical-align:middle}
 .tbl tr:last-child td{border-bottom:none}
+
+/* MODAL */
 .modal-wrap{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(8px);z-index:900;align-items:flex-end;justify-content:center}
 .modal-wrap.open{display:flex;animation:mfade .18s}
 @keyframes mfade{from{opacity:0}to{opacity:1}}
@@ -108,30 +136,48 @@ select.inp{cursor:pointer}
 .mtitle{font-size:17px;font-weight:800;color:#fff;margin-bottom:16px;display:flex;align-items:center;gap:8px}
 .modal-box::-webkit-scrollbar{width:3px}
 .modal-box::-webkit-scrollbar-thumb{background:var(--bdr2);border-radius:2px}
+
+/* TOAST */
 .toast-wrap{position:fixed;top:66px;left:50%;transform:translateX(-50%);z-index:9999;display:flex;flex-direction:column;align-items:center;gap:7px;pointer-events:none;width:92%}
 .toast{padding:9px 18px;border-radius:50px;font-size:12px;font-weight:700;animation:tin .25s cubic-bezier(.34,1.56,.64,1);text-align:center}
 .t-ok{background:rgba(0,50,25,.97);border:1px solid rgba(0,232,122,.4);color:var(--green)}
 .t-err{background:rgba(50,0,15,.97);border:1px solid rgba(255,61,90,.4);color:var(--red)}
 .t-info{background:rgba(0,20,50,.97);border:1px solid rgba(61,142,255,.4);color:var(--blue)}
 @keyframes tin{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+
+/* AUTOSAVE INDICATOR */
 .autosave-dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green);display:inline-block;margin-left:6px;opacity:0;transition:opacity .3s}
 .autosave-dot.show{opacity:1}
+
+/* SPINNER */
 .spinner{display:inline-block;width:20px;height:20px;border:2px solid rgba(61,142,255,.3);border-top-color:var(--blue);border-radius:50%;animation:spin .7s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
+
+/* WA */
 .wa-fab{position:fixed;bottom:78px;right:15px;z-index:500;background:linear-gradient(135deg,#1da851,#25D366);border-radius:50px;padding:11px 17px;display:flex;align-items:center;gap:9px;box-shadow:0 4px 20px rgba(37,211,102,.5);text-decoration:none;color:#fff;font-weight:700;font-size:13px;animation:wab 3s ease-in-out infinite}
 @keyframes wab{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+
+/* SERVICE CARD */
 .svc-card{padding:14px;border-radius:13px;background:var(--glass);border:1px solid var(--bdr);margin-bottom:10px;display:flex;gap:12px;align-items:flex-start}
 .svc-name{font-weight:800;font-size:14px;color:#fff;margin-bottom:3px}
 .svc-desc{font-size:12px;color:var(--txt2);line-height:1.55}
+
+/* HERO */
 .hero{padding:24px 14px 16px;text-align:center}
 .hero h1{font-family:'Orbitron',monospace;font-size:19px;font-weight:900;background:linear-gradient(135deg,#fff 0%,var(--blue) 50%,var(--cyan) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1.35;margin-bottom:10px}
 .hero p{font-size:12px;color:var(--txt2);line-height:1.7}
+
+/* BADGE */
 .badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:50px;font-size:10px;font-weight:700}
 .b-blue{background:rgba(61,142,255,.18);color:var(--cyan);border:1px solid rgba(61,142,255,.3)}
 .b-green{background:rgba(0,232,122,.12);color:var(--green);border:1px solid rgba(0,232,122,.3)}
 .b-orange{background:rgba(255,107,43,.12);color:#ff9d5c;border:1px solid rgba(255,107,43,.3)}
+
+/* PROGRESS */
 .prog-bg{height:5px;background:rgba(255,255,255,.07);border-radius:3px;overflow:hidden}
 .prog-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--blue),var(--cyan));transition:width .5s}
+
+/* MISC */
 .div{height:1px;background:linear-gradient(90deg,transparent,var(--bdr2),transparent);margin:13px 0}
 .list-row{display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid rgba(255,255,255,.05);cursor:pointer}
 .list-row:last-child{border-bottom:none}
@@ -142,31 +188,26 @@ select.inp{cursor:pointer}
 .recap-row:last-child{border-bottom:none;padding-top:9px;font-size:15px;font-weight:800}
 .empty{text-align:center;padding:36px 16px;color:var(--txt2)}
 .empty .ei{font-size:40px;margin-bottom:9px}
+
+/* IDLE TIMER BAR */
 #idleBar{position:fixed;top:0;left:0;height:2px;background:linear-gradient(90deg,var(--blue),var(--cyan));z-index:9999;transition:width .5s linear;width:100%}
+
+/* PDF PREVIEW */
 #pdfWrap{display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:1000;flex-direction:column}
 #pdfWrap.open{display:flex}
 #pdfBar{display:flex;align-items:center;justify-content:space-between;padding:12px 15px;background:rgba(6,11,22,.98);border-bottom:1px solid var(--bdr);flex-shrink:0}
 #pdfFrame{flex:1;width:100%;border:none;background:#fff}
-.copyright{text-align:center;font-size:10px;color:var(--txt2);padding:10px;opacity:.6;letter-spacing:.5px}
-.ver{text-align:center;font-size:9px;color:var(--txt2);opacity:.35;padding-bottom:14px;letter-spacing:1px}
+
+/* COPYRIGHT */
+.copyright{text-align:center;font-size:10px;color:var(--txt2);padding:14px;opacity:.6;letter-spacing:.5px}
+
+/* BG PICKER */
 .bg-preview{width:100%;height:120px;border-radius:10px;background-size:cover;background-position:center;border:1px solid var(--bdr);margin-bottom:10px;display:flex;align-items:center;justify-content:center;font-size:24px;position:relative;overflow:hidden}
 .bg-preview::after{content:'';position:absolute;inset:0;background:rgba(0,0,0,.3)}
-
-/* LIVE DOT */
-@keyframes livePulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
-.live-dot{width:8px;height:8px;border-radius:50%;display:inline-block;flex-shrink:0;margin-right:4px}
-.live-dot.active{background:var(--green);box-shadow:0 0 7px var(--green);animation:livePulse 1.2s infinite}
-.live-dot.pending{background:var(--orange);box-shadow:0 0 7px var(--orange)}
-.live-dot.done{background:var(--blue);box-shadow:0 0 5px var(--blue)}
-
-/* NOTIF PANEL */
-.notif-item{padding:11px 13px;border-radius:10px;margin-bottom:8px;border-left:3px solid;font-size:12px;line-height:1.5}
-.notif-urgent{background:rgba(255,61,90,.08);border-color:var(--red);color:#ffb0bf}
-.notif-warn{background:rgba(255,196,68,.08);border-color:var(--gold);color:#ffe0a0}
-.notif-ok{background:rgba(0,232,122,.06);border-color:var(--green);color:#a0ffd8}
 </style>
 </head>
 <body>
+
 <div id="bgLayer"></div>
 <div id="idleBar"></div>
 <div class="toast-wrap" id="toastWrap"></div>
@@ -175,8 +216,7 @@ select.inp{cursor:pointer}
 <div id="pdfWrap">
   <div id="pdfBar">
     <span style="font-weight:700;font-size:13px;color:var(--cyan)">📄 Preview PDF</span>
-    <div style="display:flex;gap:6px">
-      <button class="btn btn-blue btn-sm" id="pdfOpenTab">🔗 Buka</button>
+    <div style="display:flex;gap:8px">
       <button class="btn btn-green btn-sm" id="pdfDlBtn">⬇ Download</button>
       <button class="btn btn-red btn-sm" onclick="closePDF()">✕ Tutup</button>
     </div>
@@ -184,7 +224,7 @@ select.inp{cursor:pointer}
   <iframe id="pdfFrame"></iframe>
 </div>
 
-<!-- ══════════ CLIENT ══════════ -->
+<!-- ══════════ SCREEN: CLIENT ══════════ -->
 <div id="scClient" class="screen active">
   <div class="topbar">
     <div class="logo-wrap">
@@ -204,12 +244,11 @@ select.inp{cursor:pointer}
     <div class="stitle">Layanan Kami</div>
     <div id="svcGrid"></div>
     <div class="copyright">Copyright ©2026 SRISP</div>
-    <div class="ver">v 1.2</div>
   </div>
   <div id="waFab"></div>
 </div>
 
-<!-- ══════════ LOGIN ══════════ -->
+<!-- ══════════ SCREEN: LOGIN ══════════ -->
 <div id="scLogin" class="screen">
   <div class="topbar">
     <button class="btn btn-ghost btn-sm" onclick="go('scClient')">← Kembali</button>
@@ -235,13 +274,12 @@ select.inp{cursor:pointer}
         <div id="loginErr" style="font-size:12px;color:var(--red);margin-bottom:10px;display:none"></div>
         <button class="btn btn-blue btn-full" id="loginBtn" onclick="doLogin()">🚀 Masuk Admin</button>
         <div class="copyright" style="margin-top:16px">Copyright ©2026 SRISP</div>
-        <div class="ver">v 1.2</div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- ══════════ ADMIN ══════════ -->
+<!-- ══════════ SCREEN: ADMIN ══════════ -->
 <div id="scAdmin" class="screen">
   <div class="topbar">
     <div class="logo-wrap">
@@ -251,22 +289,21 @@ select.inp{cursor:pointer}
         <div class="co-tag">Admin <span id="autosaveDot" class="autosave-dot"></span></div>
       </div>
     </div>
-    <button class="btn btn-red btn-sm" onclick="doLogout()">↩ Keluar</button>
+    <div style="display:flex;gap:7px">
+      <button class="btn btn-ghost btn-sm" onclick="go('scClient');renderClient()">👁</button>
+      <button class="btn btn-red btn-sm" onclick="doLogout()">↩</button>
+    </div>
   </div>
   <div class="scroll-area" id="adminBody"></div>
   <nav class="bottom-nav">
     <button class="bnav-btn active" id="bn0" onclick="setTab(0,this)"><span class="ni">📊</span>Dashboard</button>
     <button class="bnav-btn" id="bn1" onclick="setTab(1,this)"><span class="ni">📁</span>Project</button>
     <button class="bnav-btn" id="bn2" onclick="setTab(2,this)"><span class="ni">🧮</span>Estimasi</button>
-    <button class="bnav-btn" id="bn3" onclick="setTab(3,this)">
-      <span class="ni">🔔</span>Notifikasi
-      <span class="notif-badge" id="notifBadge" style="display:none"></span>
-    </button>
-    <button class="bnav-btn" id="bn4" onclick="setTab(4,this)"><span class="ni">⚙️</span>Setting</button>
+    <button class="bnav-btn" id="bn3" onclick="setTab(3,this)"><span class="ni">⚙️</span>Pengaturan</button>
   </nav>
 </div>
 
-<!-- ══════════ DETAIL ══════════ -->
+<!-- ══════════ SCREEN: DETAIL ══════════ -->
 <div id="scDetail" class="screen">
   <div class="topbar">
     <button class="btn btn-ghost btn-sm" onclick="go('scAdmin')">← Back</button>
@@ -283,7 +320,6 @@ select.inp{cursor:pointer}
 </div>
 
 <!-- ══════════ MODALS ══════════ -->
-<!-- Project -->
 <div class="modal-wrap" id="mProject">
   <div class="modal-box">
     <div class="mhandle"></div>
@@ -296,37 +332,21 @@ select.inp{cursor:pointer}
   </div>
 </div>
 
-<!-- Cost -->
 <div class="modal-wrap" id="mCost">
   <div class="modal-box">
     <div class="mhandle"></div>
-    <div class="mtitle" id="mCostTitle">💸 Tambah Pengeluaran</div>
+    <div class="mtitle">💸 Tambah Pengeluaran</div>
     <div class="fg"><label class="lbl">Keterangan</label><input class="inp" id="cItem" placeholder="Misal: Beli Elektroda / Upah Las"></div>
     <div class="fg"><label class="lbl">Jumlah / Qty</label><input type="number" class="inp" id="cQty" value="1" min="1" oninput="updCostPrev()"></div>
     <div class="fg"><label class="lbl">Harga Satuan (Rp)</label><input type="number" class="inp" id="cPrice" placeholder="0" oninput="updCostPrev()"></div>
     <div style="background:rgba(61,142,255,.06);border:1px solid var(--bdr);border-radius:10px;padding:10px;margin-bottom:12px;font-size:12px;color:var(--txt2)" id="costPrev">Total: Rp 0</div>
     <div style="display:flex;gap:8px">
       <button class="btn btn-ghost" style="flex:1" onclick="closeM('mCost')">Batal</button>
-      <button class="btn btn-orange" style="flex:2" id="saveCostBtn" onclick="saveCost()">+ Tambah</button>
+      <button class="btn btn-orange" style="flex:2" onclick="saveCost()">+ Tambah</button>
     </div>
   </div>
 </div>
 
-<!-- Hapus Project -->
-<div class="modal-wrap" id="mDelProj">
-  <div class="modal-box">
-    <div class="mhandle"></div>
-    <div class="mtitle">⚠️ Hapus Project</div>
-    <div style="font-size:13px;color:var(--txt2);margin-bottom:16px;line-height:1.6">Yakin hapus project <strong id="delProjName" style="color:#fff"></strong>? Semua data pengeluaran ikut terhapus dan <span style="color:var(--red)">tidak bisa dikembalikan!</span></div>
-    <div class="fg"><label class="lbl">Masukkan Password untuk Konfirmasi</label><input type="password" class="inp" id="delProjPw" placeholder="Password admin"></div>
-    <div style="display:flex;gap:8px;margin-top:8px">
-      <button class="btn btn-ghost" style="flex:1" onclick="closeM('mDelProj')">Batal</button>
-      <button class="btn btn-red" style="flex:2" onclick="confirmDelProj()">🗑 Ya, Hapus</button>
-    </div>
-  </div>
-</div>
-
-<!-- Service -->
 <div class="modal-wrap" id="mSvc">
   <div class="modal-box">
     <div class="mhandle"></div>
@@ -341,7 +361,6 @@ select.inp{cursor:pointer}
   </div>
 </div>
 
-<!-- Estimasi -->
 <div class="modal-wrap" id="mEst">
   <div class="modal-box">
     <div class="mhandle"></div>
@@ -358,18 +377,23 @@ select.inp{cursor:pointer}
 </div>
 
 <script>
-// ══════ FIREBASE WAIT ══════
-function waitFB(){ return new Promise(r=>{ if(window._fbReady){r();return;} document.addEventListener('fbReady',()=>r(),{once:true}); }); }
+// ══════════════════════════════════════════
+// WAIT FOR FIREBASE
+// ══════════════════════════════════════════
+let _fb = null;
+function waitFB(){ return new Promise(res=>{ if(window._fbReady){res();return;} document.addEventListener('fbReady',()=>res(),{once:true}); }); }
 
-// ══════ DEFAULT DATA ══════
+// ══════════════════════════════════════════
+// LOCAL CONFIG (fallback & cache)
+// ══════════════════════════════════════════
 const DEF_AP = {
   name:'MEULIGOE INDAH STEEL', tag:'Welding & Engineering Solution',
   heroTitle:'Solusi Fabrikasi & Rekayasa Baja Terpercaya',
   heroDesc:'Kami menyediakan layanan pengelasan, konstruksi baja, dan rekayasa berkualitas tinggi untuk kebutuhan industri dan komersial Anda.',
-  logoUrl:'', logoEmoji:'🔧',
-  bg:'https://images.unsplash.com/photo-1565891741441-64926e441838?w=1200&q=80'
+  logoUrl:'', logoEmoji:'🌐',
+  bg: 'https://images.unsplash.com/photo-1565891741441-64926e441838?w=1200&q=80'
 };
-const DEF_CT = {name:'Admin MIS',num:'6281234567890',msg:'Halo, saya ingin bertanya mengenai layanan Meuligoe Indah Steel'};
+const DEF_CT = {name:'Alex',num:'6281262039719',msg:'Hallo, saya ingin bertanya mengenai layanan Meuligoe Indah Steel'};
 const DEF_COLS = [
   {key:'name',label:'Nama Project',type:'text',req:true},
   {key:'value',label:'Nilai Kontrak (Rp)',type:'number',req:true},
@@ -392,22 +416,23 @@ const DEF_ESTS = [
   {id:'e5',name:'Carport Baja',unit:'unit',price:8500000,note:'Ukuran standar 3x5m'}
 ];
 
-let AP={...DEF_AP}, CT={...DEF_CT}, COLS=[...DEF_COLS], SVCS=[...DEF_SVCS], ESTS=[...DEF_ESTS], PROJECTS=[];
+let AP = {...DEF_AP};
+let CT = {...DEF_CT};
+let COLS = [...DEF_COLS];
+let SVCS = [...DEF_SVCS];
+let ESTS = [...DEF_ESTS];
+let PROJECTS = [];
 
-// ══════ UTILS ══════
-const fmt = n => 'Rp '+(Number(n)||0).toLocaleString('id-ID');
-const fmtDate = d => d ? new Date(d).toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'numeric'}) : '-';
-const todayStr = () => new Date().toISOString().split('T')[0];
-function daysDiff(dateStr){
-  if(!dateStr) return null;
-  const diff = new Date(dateStr) - new Date();
-  return Math.ceil(diff/(1000*60*60*24));
-}
+// ══════════════════════════════════════════
+// UTILS
+// ══════════════════════════════════════════
+const fmt = n => 'Rp ' + (Number(n)||0).toLocaleString('id-ID');
 function toast(msg,t='info'){
-  const el=document.createElement('div');
-  el.className=`toast t-${t}`; el.textContent=msg;
+  const el = document.createElement('div');
+  el.className = `toast t-${t}`;
+  el.textContent = msg;
   document.getElementById('toastWrap').appendChild(el);
-  setTimeout(()=>el.remove(),2800);
+  setTimeout(()=>el.remove(), 2800);
 }
 function openM(id){document.getElementById(id).classList.add('open')}
 function closeM(id){document.getElementById(id).classList.remove('open')}
@@ -417,286 +442,243 @@ function go(id){
   document.getElementById(id).classList.add('active');
 }
 function showAutosave(){
-  const d=document.getElementById('autosaveDot'); if(!d)return;
-  d.classList.add('show'); setTimeout(()=>d.classList.remove('show'),1500);
+  const d = document.getElementById('autosaveDot');
+  if(!d) return;
+  d.classList.add('show');
+  setTimeout(()=>d.classList.remove('show'), 1500);
 }
+
+// ══════════════════════════════════════════
+// BACKGROUND
+// ══════════════════════════════════════════
 function applyBG(url){
-  const el=document.getElementById('bgLayer');
-  el.style.backgroundImage=url?`url('${url}')`:'';}
+  const el = document.getElementById('bgLayer');
+  if(url) el.style.backgroundImage = `url('${url}')`;
+  else el.style.backgroundImage = '';
+}
+
+// ══════════════════════════════════════════
+// LOGO
+// ══════════════════════════════════════════
 function setLogo(ids){
   ids.forEach(id=>{
-    const el=document.getElementById(id); if(!el)return;
-    if(AP.logoUrl) el.innerHTML=`<img src="${AP.logoUrl}" onerror="this.parentElement.textContent='${AP.logoEmoji||'🔧'}'">`;
-    else el.textContent=AP.logoEmoji||'🔧';
+    const el = document.getElementById(id); if(!el) return;
+    if(AP.logoUrl) el.innerHTML = `<img src="${AP.logoUrl}" onerror="this.parentElement.textContent='${AP.logoEmoji||'🔧'}'">`;
+    else el.textContent = AP.logoEmoji || '🔧';
   });
 }
 
-// ══════ FIREBASE HELPERS ══════
+// ══════════════════════════════════════════
+// FIREBASE HELPERS
+// ══════════════════════════════════════════
 async function fbGet(path){
-  const {doc,getDoc}=window._fbFns;
-  const p=path.split('/');
-  const snap=await getDoc(doc(window._db,...p));
-  return snap.exists()?snap.data():null;
+  const {doc,getDoc} = window._fbFns;
+  const parts = path.split('/');
+  let ref;
+  if(parts.length === 2) ref = doc(window._db, parts[0], parts[1]);
+  else ref = doc(window._db, ...parts);
+  const snap = await getDoc(ref);
+  return snap.exists() ? snap.data() : null;
 }
-async function fbSet(path,data){
-  const {doc,setDoc,serverTimestamp}=window._fbFns;
-  const p=path.split('/');
-  await setDoc(doc(window._db,...p),{...data,updatedAt:serverTimestamp()},{merge:true});
+async function fbSet(path, data){
+  const {doc,setDoc,serverTimestamp} = window._fbFns;
+  const parts = path.split('/');
+  let ref;
+  if(parts.length === 2) ref = doc(window._db, parts[0], parts[1]);
+  else ref = doc(window._db, ...parts);
+  await setDoc(ref, {...data, updatedAt: serverTimestamp()}, {merge:true});
   showAutosave();
 }
-async function fbAdd(col,data){
-  const {collection,addDoc,serverTimestamp}=window._fbFns;
-  const d=await addDoc(collection(window._db,col),{...data,createdAt:serverTimestamp(),updatedAt:serverTimestamp()});
-  showAutosave(); return d.id;
+async function fbAdd(col, data){
+  const {collection,addDoc,serverTimestamp} = window._fbFns;
+  const ref = collection(window._db, col);
+  const d = await addDoc(ref, {...data, createdAt: serverTimestamp(), updatedAt: serverTimestamp()});
+  showAutosave();
+  return d.id;
 }
 async function fbDel(path){
-  const {doc,deleteDoc}=window._fbFns;
-  const p=path.split('/');
-  await deleteDoc(doc(window._db,...p));
+  const {doc,deleteDoc} = window._fbFns;
+  const parts = path.split('/');
+  let ref;
+  if(parts.length === 2) ref = doc(window._db, parts[0], parts[1]);
+  else ref = doc(window._db, ...parts);
+  await deleteDoc(ref);
   showAutosave();
 }
 async function fbList(col){
-  const {collection,getDocs}=window._fbFns;
-  const snap=await getDocs(collection(window._db,col));
+  const {collection,getDocs} = window._fbFns;
+  const ref = collection(window._db, col);
+  const snap = await getDocs(ref);
   return snap.docs.map(d=>({id:d.id,...d.data()}));
 }
 
-// ══════ LOAD DATA ══════
+// ══════════════════════════════════════════
+// LOAD ALL DATA FROM FIRESTORE
+// ══════════════════════════════════════════
 async function loadAllData(){
-  try{
-    const [ap,ct,cols,svcs,ests,projs]=await Promise.all([
-      fbGet('config/appearance'),fbGet('config/contact'),fbGet('config/columns'),
-      fbList('services'),fbList('estimasi'),fbList('projects')
+  try {
+    const [ap, ct, cols, svcs, ests, projs] = await Promise.all([
+      fbGet('config/appearance'),
+      fbGet('config/contact'),
+      fbGet('config/columns'),
+      fbList('services'),
+      fbList('estimasi'),
+      fbList('projects')
     ]);
-    if(ap) AP={...DEF_AP,...ap};
-    if(ct) CT={...DEF_CT,...ct};
-    if(cols&&cols.data) COLS=cols.data;
-    if(svcs.length) SVCS=svcs;
-    if(ests.length) ESTS=ests;
-    PROJECTS=await Promise.all(projs.map(async p=>{
-      const costs=await fbList('projects/'+p.id+'/costs');
-      return {...p,costs};
+    if(ap){ AP = {...DEF_AP,...ap}; }
+    if(ct){ CT = {...DEF_CT,...ct}; }
+    if(cols && cols.data){ COLS = cols.data; }
+    if(svcs.length){ SVCS = svcs; }
+    if(ests.length){ ESTS = ests; }
+
+    // load each project with its costs
+    PROJECTS = await Promise.all(projs.map(async p=>{
+      const costs = await fbList(`projects/${p.id}/costs`);
+      return {...p, costs};
     }));
-    if(!svcs.length){for(const s of DEF_SVCS)await fbSet('services/'+s.id,s);SVCS=[...DEF_SVCS];}
-    if(!ests.length){for(const e of DEF_ESTS)await fbSet('estimasi/'+e.id,e);ESTS=[...DEF_ESTS];}
-    applyBG(AP.bg||DEF_AP.bg);
+
+    // If no services/ests in DB, seed defaults
+    if(!svcs.length){ for(const s of DEF_SVCS) await fbSet(`services/${s.id}`,s); SVCS=[...DEF_SVCS]; }
+    if(!ests.length){ for(const e of DEF_ESTS) await fbSet(`estimasi/${e.id}`,e); ESTS=[...DEF_ESTS]; }
+
+    applyBG(AP.bg || DEF_AP.bg);
     renderClient();
-    checkNotifications();
-  }catch(e){console.error(e);toast('Gagal memuat data: '+e.message,'err');}
+  } catch(e){
+    console.error(e);
+    toast('Gagal memuat data: '+e.message,'err');
+  }
 }
 
-async function loadPublicData(){
-  try{
-    await waitFB();
-    const [ap,ct,svcs]=await Promise.all([fbGet('config/appearance'),fbGet('config/contact'),fbList('services')]);
-    if(ap) AP={...AP,...ap};
-    if(ct) CT={...CT,...ct};
-    if(svcs.length) SVCS=svcs;
-    applyBG(AP.bg||DEF_AP.bg);
-  }catch(e){console.log('Public load:',e);}
-  renderClient();
-}
-
-// ══════ IDLE TIMER ══════
-let idleTimer=null;
-const IDLE_MS=600000;
-let idleStart=Date.now();
+// ══════════════════════════════════════════
+// IDLE TIMER (10 menit = 600 detik)
+// ══════════════════════════════════════════
+let idleTimer = null;
+const IDLE_MS = 600000;
+let idleStart = Date.now();
 function resetIdle(){
-  idleStart=Date.now(); clearTimeout(idleTimer);
-  idleTimer=setTimeout(()=>{
-    if(window._auth?.currentUser){doLogout();toast('Sesi berakhir karena tidak aktif 10 menit','info');}
-  },IDLE_MS);
+  idleStart = Date.now();
+  clearTimeout(idleTimer);
+  idleTimer = setTimeout(()=>{
+    if(window._auth?.currentUser){
+      doLogout();
+      toast('Sesi berakhir karena tidak aktif 10 menit','info');
+    }
+  }, IDLE_MS);
   updateIdleBar();
 }
 function updateIdleBar(){
-  const pct=Math.max(0,100-((Date.now()-idleStart)/IDLE_MS*100));
-  const bar=document.getElementById('idleBar');
-  if(bar) bar.style.width=pct+'%';
-  if(window._auth?.currentUser) setTimeout(updateIdleBar,5000);
+  const pct = Math.max(0, 100 - ((Date.now()-idleStart)/IDLE_MS*100));
+  const bar = document.getElementById('idleBar');
+  if(bar) bar.style.width = pct+'%';
+  if(window._auth?.currentUser) setTimeout(updateIdleBar, 5000);
 }
 ['touchstart','touchmove','click','keydown','scroll'].forEach(ev=>document.addEventListener(ev,resetIdle,{passive:true}));
 
-// ══════ AUTH ══════
-const ADMIN_EMAIL='admin@mis.com';
+// ══════════════════════════════════════════
+// AUTH
+// ══════════════════════════════════════════
 async function initAuth(){
   await waitFB();
-  const {onAuthStateChanged,setPersistence,browserLocalPersistence}=window._fbFns;
-  await setPersistence(window._auth,browserLocalPersistence);
-  onAuthStateChanged(window._auth,async user=>{
+  const {onAuthStateChanged, setPersistence, browserLocalPersistence} = window._fbFns;
+  await setPersistence(window._auth, browserLocalPersistence);
+  onAuthStateChanged(window._auth, async user=>{
     if(user){
       await loadAllData();
-      go('scAdmin'); setTab(0,document.getElementById('bn0'));
-      resetIdle(); toast('Login berhasil! 👋','ok');
+      go('scAdmin');
+      setTab(0, document.getElementById('bn0'));
+      resetIdle();
+      toast('Login berhasil! 👋','ok');
     } else {
-      go('scClient'); loadPublicData();
+      go('scClient');
+      renderClient();
     }
   });
 }
 
+// Email tersembunyi di kode - user hanya input username
+const ADMIN_EMAIL = 'admin@mis.com';
+
 async function doLogin(){
-  const user=document.getElementById('loginUser').value.trim();
-  const pw=document.getElementById('loginPw').value;
-  const btn=document.getElementById('loginBtn');
-  const err=document.getElementById('loginErr');
+  const user = document.getElementById('loginUser').value.trim();
+  const pw = document.getElementById('loginPw').value;
+  const btn = document.getElementById('loginBtn');
+  const err = document.getElementById('loginErr');
   if(!user||!pw){toast('Username dan password wajib!','err');return;}
-  if(user.toLowerCase()!=='admin'){err.textContent='Username salah!';err.style.display='block';toast('Username salah!','err');return;}
-  if(!window._fbReady||!window._fbFns){err.textContent='Firebase belum siap, coba lagi';err.style.display='block';return;}
-  btn.innerHTML='<span class="spinner"></span> Masuk...'; btn.disabled=true; err.style.display='none';
-  try{
+  if(user.toLowerCase()!=='admin'){
+    err.textContent='Username salah!';err.style.display='block';
+    toast('Username salah!','err');return;
+  }
+  if(!window._fbReady||!window._fbFns){
+    err.textContent='Firebase belum siap, coba lagi';err.style.display='block';return;
+  }
+  btn.innerHTML='<span class="spinner"></span> Masuk...';
+  btn.disabled=true; err.style.display='none';
+  try {
     const {signInWithEmailAndPassword}=window._fbFns;
-    await signInWithEmailAndPassword(window._auth,ADMIN_EMAIL,pw);
-  }catch(e){
+    await signInWithEmailAndPassword(window._auth, ADMIN_EMAIL, pw);
+  } catch(e){
+    console.error('Login error:',e.code,e.message);
     let msg='Login gagal';
     if(e.code==='auth/invalid-credential'||e.code==='auth/wrong-password') msg='Password salah!';
     else if(e.code==='auth/too-many-requests') msg='Terlalu banyak percobaan, tunggu beberapa menit';
     else if(e.code==='auth/network-request-failed') msg='Gagal koneksi, periksa internet';
+    else if(e.code==='auth/user-disabled') msg='Akun dinonaktifkan';
     else msg='Error: '+(e.code||e.message);
-    err.textContent=msg; err.style.display='block'; toast(msg,'err');
+    err.textContent=msg; err.style.display='block';
+    toast(msg,'err');
   }
   btn.innerHTML='🚀 Masuk Admin'; btn.disabled=false;
 }
 
 async function doLogout(){
-  const {signOut}=window._fbFns; clearTimeout(idleTimer);
-  await signOut(window._auth); go('scClient'); renderClient(); toast('Berhasil keluar','info');
+  const {signOut} = window._fbFns;
+  clearTimeout(idleTimer);
+  await signOut(window._auth);
+  go('scClient');
+  renderClient();
+  toast('Berhasil keluar','info');
 }
 
-// ══════ CLIENT ══════
+// ══════════════════════════════════════════
+// CLIENT
+// ══════════════════════════════════════════
 function renderClient(){
-  document.getElementById('coNameC').textContent=AP.name;
-  document.getElementById('coTagC').textContent=AP.tag;
-  document.getElementById('heroTitle').textContent=AP.heroTitle;
-  document.getElementById('heroDesc').textContent=AP.heroDesc;
+  document.getElementById('coNameC').textContent = AP.name;
+  document.getElementById('coTagC').textContent = AP.tag;
+  document.getElementById('heroTitle').textContent = AP.heroTitle;
+  document.getElementById('heroDesc').textContent = AP.heroDesc;
   setLogo(['logoC','logoA']);
-  applyBG(AP.bg||DEF_AP.bg);
-  const c=CT, msg=encodeURIComponent(c.msg||'Halo');
-  document.getElementById('waFab').innerHTML=`<a class="wa-fab" href="https://wa.me/${c.num}?text=${msg}" target="_blank"><span style="font-size:22px">💬</span><div><div style="font-size:10px;opacity:.8">Hubungi Kami</div><div>${c.name}</div></div></a>`;
-  const g=document.getElementById('svcGrid');
-  g.innerHTML=SVCS.length?SVCS.map(s=>`<div class="svc-card"><span style="font-size:26px;flex-shrink:0;margin-top:2px">${s.icon}</span><div><div class="svc-name">${s.name}</div><div class="svc-desc">${s.desc}</div></div></div>`).join(''):`<div class="empty"><div class="ei">🛠</div><p>Belum ada layanan</p></div>`;
+  applyBG(AP.bg || DEF_AP.bg);
+  const c = CT;
+  const msg = encodeURIComponent(c.msg||'Halo');
+  document.getElementById('waFab').innerHTML = `<a class="wa-fab" href="https://wa.me/${c.num}?text=${msg}" target="_blank"><span style="font-size:22px">💬</span><div><div style="font-size:10px;opacity:.8">Hubungi Kami</div><div>${c.name}</div></div></a>`;
+  const g = document.getElementById('svcGrid');
+  g.innerHTML = SVCS.length ? SVCS.map(s=>`<div class="svc-card"><span style="font-size:26px;flex-shrink:0;margin-top:2px">${s.icon}</span><div><div class="svc-name">${s.name}</div><div class="svc-desc">${s.desc}</div></div></div>`).join('') : `<div class="empty"><div class="ei">🛠</div><p>Belum ada layanan</p></div>`;
 }
 
-// ══════ ADMIN TABS ══════
+// ══════════════════════════════════════════
+// ADMIN TABS
+// ══════════════════════════════════════════
 function setTab(n,el){
   document.querySelectorAll('.bnav-btn').forEach(b=>b.classList.remove('active'));
   el.classList.add('active');
   setLogo(['logoA']);
-  document.getElementById('coNameA').textContent=AP.name;
-  const body=document.getElementById('adminBody');
-  if(n===0) body.innerHTML=tabDash();
-  if(n===1) body.innerHTML=tabProj();
-  if(n===2) body.innerHTML=tabEst();
-  if(n===3) body.innerHTML=tabNotif();
-  if(n===4) body.innerHTML=tabSet();
+  document.getElementById('coNameA').textContent = AP.name;
+  const body = document.getElementById('adminBody');
+  if(n===0) body.innerHTML = tabDash();
+  if(n===1) body.innerHTML = tabProj();
+  if(n===2) body.innerHTML = tabEst();
+  if(n===3) body.innerHTML = tabSet();
 }
 
-// ══════ NOTIFICATIONS ══════
-function checkNotifications(){
-  const today=new Date();
-  let count=0;
-  PROJECTS.forEach(p=>{
-    if(p.status==='Selesai') return;
-    if(p.targetDate){
-      const diff=daysDiff(p.targetDate);
-      if(diff!==null && diff<=3) count++;
-    }
-  });
-  const badge=document.getElementById('notifBadge');
-  if(badge) badge.style.display=count>0?'block':'none';
-  return count;
-}
-
-function tabNotif(){
-  const notifs=[];
-  const today=new Date();
-  PROJECTS.forEach(p=>{
-    if(p.status==='Selesai') return;
-    if(p.targetDate){
-      const diff=daysDiff(p.targetDate);
-      if(diff===null) return;
-      if(diff<0) notifs.push({type:'urgent',icon:'🚨',msg:`<strong>${p.name}</strong> — Target selesai sudah <strong>terlewat ${Math.abs(diff)} hari!</strong>`,proj:p.id});
-      else if(diff===0) notifs.push({type:'urgent',icon:'🔴',msg:`<strong>${p.name}</strong> — Target selesai <strong>HARI INI!</strong>`,proj:p.id});
-      else if(diff<=3) notifs.push({type:'warn',icon:'⚠️',msg:`<strong>${p.name}</strong> — Target selesai <strong>${diff} hari lagi</strong> (${fmtDate(p.targetDate)})`,proj:p.id});
-      else if(diff<=7) notifs.push({type:'ok',icon:'📅',msg:`<strong>${p.name}</strong> — Target selesai ${fmtDate(p.targetDate)} (${diff} hari lagi)`,proj:p.id});
-    }
-  });
-  return `<div class="stitle">🔔 Notifikasi</div>
-  ${notifs.length?notifs.map(n=>`
-    <div class="notif-item notif-${n.type}" onclick="openDetail('${n.proj}')">
-      ${n.icon} ${n.msg}
-    </div>`).join(''):`<div class="empty"><div class="ei">🔔</div><p>Tidak ada notifikasi saat ini.<br>Semua project on track!</p></div>`}
-  <div class="div"></div>
-  <div class="stitle">📊 Laporan Bulanan</div>
-  ${tabLaporan()}
-  <div class="copyright">Copyright ©2026 SRISP</div>
-  <div class="ver">v 1.2</div>`;
-}
-
-// ══════ LAPORAN BULANAN ══════
-function tabLaporan(){
-  const now=new Date();
-  const months=[];
-  for(let i=5;i>=0;i--){
-    const d=new Date(now.getFullYear(),now.getMonth()-i,1);
-    months.push({year:d.getFullYear(),month:d.getMonth(),label:d.toLocaleDateString('id-ID',{month:'long',year:'numeric'})});
-  }
-  const selOpts=months.map((m,i)=>`<option value="${i}" ${i===5?'selected':''}>${m.label}</option>`).join('');
-  const idx=5; // default bulan ini
-  return `<div class="card" style="padding:14px;margin-bottom:12px">
-    <div class="fg" style="margin-bottom:0">
-      <label class="lbl">Filter Bulan</label>
-      <select class="inp" id="laporanSel" onchange="renderLaporan()">${selOpts}</select>
-    </div>
-  </div>
-  <div id="laporanResult">${genLaporan(months[idx])}</div>`;
-}
-
-function renderLaporan(){
-  const sel=document.getElementById('laporanSel'); if(!sel)return;
-  const now=new Date();
-  const months=[];
-  for(let i=5;i>=0;i--){
-    const d=new Date(now.getFullYear(),now.getMonth()-i,1);
-    months.push({year:d.getFullYear(),month:d.getMonth(),label:d.toLocaleDateString('id-ID',{month:'long',year:'numeric'})});
-  }
-  const res=document.getElementById('laporanResult');
-  if(res) res.innerHTML=genLaporan(months[+sel.value]);
-}
-
-function genLaporan(m){
-  const filtered=PROJECTS.filter(p=>{
-    if(!p.startDate) return false;
-    const d=new Date(p.startDate);
-    return d.getFullYear()===m.year && d.getMonth()===m.month;
-  });
-  if(!filtered.length) return `<div class="empty" style="padding:20px"><p>Tidak ada project di bulan ${m.label}</p></div>`;
-  const tv=filtered.reduce((a,p)=>a+(+p.value||0),0);
-  const tc=filtered.reduce((a,p)=>a+(p.costs||[]).reduce((b,c)=>b+(+c.qty*(+c.price)||0),0),0);
-  return `<div class="stat-grid">
-    <div class="card stat-card"><div class="stat-lbl">Project</div><div class="stat-val cv-blue">${filtered.length}</div></div>
-    <div class="card stat-card"><div class="stat-lbl">Total Kontrak</div><div class="stat-val cv-gold" style="font-size:12px">${fmt(tv)}</div></div>
-    <div class="card stat-card"><div class="stat-lbl">Pengeluaran</div><div class="stat-val cv-red" style="font-size:12px">${fmt(tc)}</div></div>
-    <div class="card stat-card"><div class="stat-lbl">Sisa/Profit</div><div class="stat-val ${tv-tc>=0?'cv-green':'cv-red'}" style="font-size:12px">${fmt(tv-tc)}</div></div>
-  </div>
-  <div class="card" style="padding:12px 14px">
-    ${filtered.map(p=>{
-      const sp=(p.costs||[]).reduce((a,c)=>a+(+c.qty*(+c.price)||0),0);
-      return `<div class="list-row" onclick="openDetail('${p.id}')">
-        <div><div style="font-weight:700;font-size:13px">${p.name}</div><div style="font-size:11px;color:var(--txt2)">${fmtDate(p.startDate)}</div></div>
-        <div style="text-align:right"><div style="font-size:12px;color:var(--gold)">${fmt(p.value)}</div><div style="font-size:11px;color:${(+p.value-sp)>=0?'var(--green)':'var(--red)'}">Sisa ${fmt(+p.value-sp)}</div></div>
-      </div>`;
-    }).join('')}
-  </div>`;
-}
-
-// ══════ DASHBOARD ══════
+// ══════════════════════════════════════════
+// DASHBOARD
+// ══════════════════════════════════════════
 function tabDash(){
-  const tv=PROJECTS.reduce((a,p)=>a+(+p.value||0),0);
-  const tc=PROJECTS.reduce((a,p)=>a+(p.costs||[]).reduce((b,c)=>b+(+c.qty*(+c.price)||0),0),0);
-  const sf=tv-tc;
-  const aktif=PROJECTS.filter(p=>(!p.status||p.status==='Aktif')).length;
-  const selesai=PROJECTS.filter(p=>p.status==='Selesai').length;
-  const pending=PROJECTS.filter(p=>p.status==='Pending').length;
-  const recent=[...PROJECTS].reverse().slice(0,6);
+  const tv = PROJECTS.reduce((a,p)=>a+(+p.value||0),0);
+  const tc = PROJECTS.reduce((a,p)=>a+(p.costs||[]).reduce((b,c)=>b+(+c.qty*(+c.price)||0),0),0);
+  const sf = tv - tc;
+  const recent = [...PROJECTS].reverse().slice(0,5);
   return `<div class="stitle">Dashboard</div>
   <div class="stat-grid">
     <div class="card stat-card"><div class="stat-lbl">Total Project</div><div class="stat-val cv-blue">${PROJECTS.length}</div></div>
@@ -704,67 +686,24 @@ function tabDash(){
     <div class="card stat-card"><div class="stat-lbl">Pengeluaran</div><div class="stat-val cv-red" style="font-size:12px">${fmt(tc)}</div></div>
     <div class="card stat-card"><div class="stat-lbl">Sisa/Profit</div><div class="stat-val ${sf>=0?'cv-green':'cv-red'}" style="font-size:12px">${fmt(sf)}</div></div>
   </div>
-  <!-- Status summary -->
-  <div style="display:flex;gap:8px;margin-bottom:14px">
-    <div class="card" style="flex:1;padding:10px;text-align:center">
-      <div style="display:flex;align-items:center;justify-content:center;gap:5px;margin-bottom:3px">
-        <span class="live-dot active"></span><span style="font-size:10px;color:var(--green);font-weight:700">AKTIF</span>
-      </div>
-      <div style="font-family:Orbitron,monospace;font-size:18px;color:var(--green)">${aktif}</div>
-    </div>
-    <div class="card" style="flex:1;padding:10px;text-align:center">
-      <div style="display:flex;align-items:center;justify-content:center;gap:5px;margin-bottom:3px">
-        <span class="live-dot pending"></span><span style="font-size:10px;color:var(--orange);font-weight:700">PENDING</span>
-      </div>
-      <div style="font-family:Orbitron,monospace;font-size:18px;color:var(--orange)">${pending}</div>
-    </div>
-    <div class="card" style="flex:1;padding:10px;text-align:center">
-      <div style="display:flex;align-items:center;justify-content:center;gap:5px;margin-bottom:3px">
-        <span class="live-dot done"></span><span style="font-size:10px;color:var(--blue);font-weight:700">SELESAI</span>
-      </div>
-      <div style="font-family:Orbitron,monospace;font-size:18px;color:var(--blue)">${selesai}</div>
-    </div>
-  </div>
   <div class="stitle">Project Terbaru</div>
   <div class="card" style="padding:12px 14px">
     ${recent.length?recent.map(p=>{
       const sp=(p.costs||[]).reduce((a,c)=>a+(+c.qty*(+c.price)||0),0);
       const si=(+p.value||0)-sp;
-      const st=p.status||'Aktif';
-      const diff=daysDiff(p.targetDate);
-      const isActive=!p.status||p.status==='Aktif';
-      const isPending=p.status==='Pending';
-      const isDone=p.status==='Selesai';
-      let dotClass=isActive?'active':isPending?'pending':'done';
-      let stLabel=isActive?'<span style="color:var(--green);font-size:10px;font-weight:700">● On Proses</span>':
-                  isPending?'<span style="color:var(--orange);font-size:10px;font-weight:700">● Pending</span>':
-                  '<span style="color:var(--blue);font-size:10px;font-weight:700">● Selesai</span>';
-      let deadlineWarn='';
-      if(!isDone && p.targetDate){
-        if(diff<0) deadlineWarn=`<span style="color:var(--red);font-size:9px">🚨 Terlewat ${Math.abs(diff)}hr</span>`;
-        else if(diff<=3) deadlineWarn=`<span style="color:var(--gold);font-size:9px">⚠️ ${diff}hr lagi</span>`;
-      }
       return `<div class="list-row" onclick="openDetail('${p.id}')">
-        <div style="flex:1;min-width:0">
-          <div style="display:flex;align-items:center;gap:6px;margin-bottom:2px">
-            <span class="live-dot ${dotClass}"></span>
-            <span style="font-weight:700;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.name}</span>
-          </div>
-          <div style="display:flex;align-items:center;gap:6px">${stLabel} ${deadlineWarn}</div>
-        </div>
-        <div style="text-align:right;flex-shrink:0;margin-left:10px">
-          <div style="font-size:12px;color:var(--gold)">${fmt(p.value)}</div>
-          <div style="font-size:11px;color:${si>=0?'var(--green)':'var(--red)'}">Sisa ${fmt(si)}</div>
-        </div>
+        <div><div style="font-weight:700;font-size:13px">${p.name}</div><div style="font-size:11px;color:var(--txt2)">${p.address||'-'}</div></div>
+        <div style="text-align:right;flex-shrink:0;margin-left:10px"><div style="font-size:12px;color:var(--gold)">${fmt(p.value)}</div><div style="font-size:11px;color:${si>=0?'var(--green)':'var(--red)'}">Sisa ${fmt(si)}</div></div>
       </div>`;
     }).join(''):'<div class="empty" style="padding:20px"><p>Belum ada project</p></div>'}
   </div>
-  <div class="copyright">Copyright ©2026 SRISP</div>
-  <div class="ver">v 1.2</div>`;
+  <div class="copyright">Copyright ©2026 SRISP</div>`;
 }
 
-// ══════ PROJECTS ══════
-let editPid=null;
+// ══════════════════════════════════════════
+// PROJECTS
+// ══════════════════════════════════════════
+let editPid = null;
 function tabProj(){
   return `<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:13px">
     <div class="stitle" style="margin-bottom:0">Project</div>
@@ -774,30 +713,10 @@ function tabProj(){
     const sp=(p.costs||[]).reduce((a,c)=>a+(+c.qty*(+c.price)||0),0);
     const si=(+p.value||0)-sp;
     const pct=+p.value>0?Math.min(100,Math.round(sp/(+p.value)*100)):0;
-    const diff=daysDiff(p.targetDate);
-    const isActive=!p.status||p.status==='Aktif';
-    const isPending=p.status==='Pending';
-    const isDone=p.status==='Selesai';
-    let dotClass=isActive?'active':isPending?'pending':'done';
-    let statusLabel=isActive?'<span style="color:var(--green);font-size:10px;font-weight:700">On Proses</span>':
-                    isPending?'<span style="color:var(--orange);font-size:10px;font-weight:700">Pending</span>':
-                    '<span style="color:var(--blue);font-size:10px;font-weight:700">Selesai</span>';
-    let deadlineTag='';
-    if(!isDone && p.targetDate){
-      if(diff<0) deadlineTag=`<span class="badge" style="background:rgba(255,61,90,.2);color:var(--red);font-size:9px">🚨 Terlewat ${Math.abs(diff)}hr</span>`;
-      else if(diff<=3) deadlineTag=`<span class="badge" style="background:rgba(255,196,68,.15);color:var(--gold);font-size:9px">⚠️ ${diff}hr lagi</span>`;
-      else deadlineTag=`<span style="font-size:9px;color:var(--txt2)">Target: ${fmtDate(p.targetDate)}</span>`;
-    }
     return `<div class="proj-card">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">
-        <div style="flex:1;padding-right:8px">
-          <div style="display:flex;align-items:center;gap:6px;margin-bottom:2px">
-            <span class="live-dot ${dotClass}"></span>
-            <span style="font-weight:800;font-size:14px">${p.name}</span>
-          </div>
-          <div style="display:flex;align-items:center;gap:6px">${statusLabel} ${deadlineTag}</div>
-          <div style="font-size:10px;color:var(--txt2);margin-top:2px">${p.address||'-'} ${p.startDate?'· Mulai: '+fmtDate(p.startDate):''}</div>
-        </div>
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:7px">
+        <div style="flex:1;padding-right:8px"><div style="font-weight:800;font-size:14px">${p.name}</div><div style="font-size:11px;color:var(--txt2);margin-top:2px">${p.address||'-'}</div></div>
+        <span class="badge ${p.status==='Selesai'?'b-green':p.status==='Pending'?'b-orange':'b-blue'}">${p.status||'Aktif'}</span>
       </div>
       <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px">
         <span style="color:var(--txt2)">Kontrak</span><span style="color:var(--gold);font-weight:700">${fmt(p.value)}</span>
@@ -817,112 +736,82 @@ function tabProj(){
 }
 
 function openProjM(id=null){
-  editPid=id;
-  document.getElementById('mProjTitle').textContent=id?'✏️ Edit Project':'📁 Tambah Project';
-  const p=id?PROJECTS.find(x=>x.id===id):null;
-  // Build fields from COLS + tanggal mulai + target selesai
-  let html=COLS.map(c=>{
-    const v=p?(p[c.key]||''):'';
+  editPid = id;
+  document.getElementById('mProjTitle').textContent = id?'✏️ Edit Project':'📁 Tambah Project';
+  const p = id ? PROJECTS.find(x=>x.id===id) : null;
+  document.getElementById('mProjFields').innerHTML = COLS.map(c=>{
+    const v = p?(p[c.key]||''):'';
     if(c.type==='select'){
       const opts=(c.opts||[]).map(o=>`<option value="${o}" ${v===o?'selected':''}>${o}</option>`).join('');
       return `<div class="fg"><label class="lbl">${c.label}</label><select class="inp" id="pf_${c.key}">${opts}</select></div>`;
     }
     return `<div class="fg"><label class="lbl">${c.label}${c.req?' *':''}</label><input class="inp" type="${c.type||'text'}" id="pf_${c.key}" placeholder="${c.label}" value="${v}"></div>`;
   }).join('');
-  // Tanggal mulai (auto hari ini, bisa edit)
-  const sd=p?.startDate||todayStr();
-  const td=p?.targetDate||'';
-  html+=`<div class="fg"><label class="lbl">📅 Tanggal Mulai</label><input type="date" class="inp" id="pf_startDate" value="${sd}"></div>`;
-  html+=`<div class="fg"><label class="lbl">🎯 Target Selesai</label><input type="date" class="inp" id="pf_targetDate" value="${td}"></div>`;
-  document.getElementById('mProjFields').innerHTML=html;
   openM('mProject');
 }
 
 async function saveProject(){
-  const data={}; let ok=true;
+  const data = {}; let ok = true;
   COLS.forEach(c=>{
-    const el=document.getElementById('pf_'+c.key); if(!el)return;
-    data[c.key]=el.value;
-    if(c.req&&!el.value.trim()){ok=false;toast(c.label+' wajib diisi!','err');}
+    const el = document.getElementById('pf_'+c.key); if(!el) return;
+    data[c.key] = el.value;
+    if(c.req&&!el.value.trim()){ok=false;toast(`${c.label} wajib diisi!`,'err');}
   });
-  // Tanggal
-  const sd=document.getElementById('pf_startDate')?.value||todayStr();
-  const td=document.getElementById('pf_targetDate')?.value||'';
-  data.startDate=sd; data.targetDate=td;
   if(!ok) return;
-  const btn=document.getElementById('saveProjBtn');
+  const btn = document.getElementById('saveProjBtn');
   btn.innerHTML='<span class="spinner"></span>'; btn.disabled=true;
-  try{
+  try {
     if(editPid){
-      await fbSet('projects/'+editPid,data);
-      const i=PROJECTS.findIndex(p=>p.id===editPid);
-      if(i>-1) Object.assign(PROJECTS[i],data);
+      await fbSet(`projects/${editPid}`, data);
+      const i = PROJECTS.findIndex(p=>p.id===editPid);
+      if(i>-1) Object.assign(PROJECTS[i], data);
       toast('Project diperbarui! ✅','ok');
     } else {
-      const id=await fbAdd('projects',{...data,costs:[]});
-      PROJECTS.push({...data,id,costs:[]});
+      const id = await fbAdd('projects', {...data, costs:[]});
+      PROJECTS.push({...data, id, costs:[]});
       toast('Project ditambahkan! ✅','ok');
     }
-    closeM('mProject'); checkNotifications();
-    setTab(1,document.getElementById('bn1'));
-  }catch(e){toast('Gagal: '+e.message,'err');}
+    closeM('mProject');
+    setTab(1, document.getElementById('bn1'));
+  } catch(e){ toast('Gagal: '+e.message,'err'); }
   btn.innerHTML='💾 Simpan'; btn.disabled=false;
 }
 
-let _delProjId=null;
-function delProj(id){
-  const p=PROJECTS.find(x=>x.id===id); if(!p)return;
-  _delProjId=id;
-  document.getElementById('delProjName').textContent=p.name;
-  document.getElementById('delProjPw').value='';
-  openM('mDelProj');
-}
-async function confirmDelProj(){
-  const pw=document.getElementById('delProjPw').value;
-  if(!pw){toast('Password wajib!','err');return;}
-  try{
-    const {signInWithEmailAndPassword}=window._fbFns;
-    await signInWithEmailAndPassword(window._auth,ADMIN_EMAIL,pw);
-  }catch(e){toast('Password salah!','err');return;}
-  try{
-    await fbDel('projects/'+_delProjId);
-    PROJECTS=PROJECTS.filter(p=>p.id!==_delProjId);
-    closeM('mDelProj'); checkNotifications();
-    setTab(1,document.getElementById('bn1'));
-    toast('Project berhasil dihapus','info');
-  }catch(e){toast('Gagal: '+e.message,'err');}
+async function delProj(id){
+  if(!confirm('Hapus project ini? Data tidak bisa dikembalikan.')) return;
+  try {
+    await fbDel(`projects/${id}`);
+    PROJECTS = PROJECTS.filter(p=>p.id!==id);
+    setTab(1, document.getElementById('bn1'));
+    toast('Project dihapus','info');
+  } catch(e){ toast('Gagal: '+e.message,'err'); }
 }
 
-// ══════ DETAIL ══════
-let curPid=null;
+// ══════════════════════════════════════════
+// DETAIL
+// ══════════════════════════════════════════
+let curPid = null;
 function openDetail(id){
-  curPid=id;
-  const p=PROJECTS.find(x=>x.id===id); if(!p)return;
-  document.getElementById('dtName').textContent=p.name;
-  document.getElementById('dtSub').textContent=p.address||'Tanpa Alamat';
-  go('scDetail'); renderDetail();
+  curPid = id;
+  const p = PROJECTS.find(x=>x.id===id); if(!p) return;
+  document.getElementById('dtName').textContent = p.name;
+  document.getElementById('dtSub').textContent = p.address||'Tanpa Alamat';
+  go('scDetail');
+  renderDetail();
 }
 
 function renderDetail(){
-  const p=PROJECTS.find(x=>x.id===curPid); if(!p)return;
-  const costs=p.costs||[];
-  const sp=costs.reduce((a,c)=>a+(+c.qty*(+c.price)||0),0);
-  const nv=+p.value||0; const si=nv-sp;
-  const pct=nv>0?Math.min(100,Math.round(sp/nv*100)):0;
-  const diff=daysDiff(p.targetDate);
-  let deadlineInfo='';
-  if(p.targetDate){
-    if(diff<0) deadlineInfo=`<div style="background:rgba(255,61,90,.1);border:1px solid rgba(255,61,90,.3);border-radius:8px;padding:8px 12px;font-size:12px;color:var(--red);margin-bottom:12px">🚨 Target selesai sudah terlewat ${Math.abs(diff)} hari!</div>`;
-    else if(diff===0) deadlineInfo=`<div style="background:rgba(255,196,68,.1);border:1px solid rgba(255,196,68,.3);border-radius:8px;padding:8px 12px;font-size:12px;color:var(--gold);margin-bottom:12px">⚠️ Target selesai HARI INI!</div>`;
-    else if(diff<=3) deadlineInfo=`<div style="background:rgba(255,196,68,.08);border:1px solid rgba(255,196,68,.25);border-radius:8px;padding:8px 12px;font-size:12px;color:var(--gold);margin-bottom:12px">⚠️ Target selesai ${diff} hari lagi (${fmtDate(p.targetDate)})</div>`;
-  }
-  const infoRows=COLS.filter(c=>c.key!=='name').map(c=>{
+  const p = PROJECTS.find(x=>x.id===curPid); if(!p) return;
+  const costs = p.costs||[];
+  const sp = costs.reduce((a,c)=>a+(+c.qty*(+c.price)||0),0);
+  const nv = +p.value||0; const si = nv-sp;
+  const pct = nv>0?Math.min(100,Math.round(sp/nv*100)):0;
+  const infoRows = COLS.filter(c=>c.key!=='name').map(c=>{
     let v=p[c.key]||'-'; if(c.type==='number')v=fmt(v);
     return `<div class="recap-row" style="font-size:12px"><span style="color:var(--txt2)">${c.label}</span><span>${v}</span></div>`;
   }).join('');
 
   document.getElementById('detailBody').innerHTML=`
-  ${deadlineInfo}
   <div class="stat-grid">
     <div class="card stat-card"><div class="stat-lbl">Kontrak</div><div class="stat-val cv-gold" style="font-size:12px">${fmt(nv)}</div></div>
     <div class="card stat-card"><div class="stat-lbl">Keluar</div><div class="stat-val cv-red" style="font-size:12px">${fmt(sp)}</div></div>
@@ -935,7 +824,7 @@ function renderDetail(){
   </div>
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
     <div class="stitle" style="margin-bottom:0">💸 Pengeluaran</div>
-    <button class="btn btn-orange btn-sm" onclick="openCostM()">＋ Tambah</button>
+    <button class="btn btn-orange btn-sm" onclick="openM('mCost')">＋ Tambah</button>
   </div>
   <div class="card" style="padding:0;overflow:hidden;margin-bottom:12px">
     <div class="tbl-wrap">
@@ -943,7 +832,7 @@ function renderDetail(){
         <thead><tr><th>Keterangan</th><th>Jml</th><th>Harga</th><th>Total</th><th></th></tr></thead>
         <tbody>${costs.length?costs.map((c,i)=>{
           const tot=+c.qty*(+c.price)||0;
-          return `<tr><td>${c.item}</td><td>${c.qty}</td><td style="white-space:nowrap">${fmt(c.price)}</td><td style="color:var(--gold);font-weight:700;white-space:nowrap">${fmt(tot)}</td><td><div style="display:flex;gap:4px"><button class="btn btn-ghost btn-xs" onclick="editCost('${c.id||''}',${i})">✏️</button><button class="btn btn-red btn-xs" onclick="delCost('${c.id||i}',${i})">🗑</button></div></td></tr>`;
+          return `<tr><td>${c.item}</td><td>${c.qty}</td><td style="white-space:nowrap">${fmt(c.price)}</td><td style="color:var(--gold);font-weight:700;white-space:nowrap">${fmt(tot)}</td><td><button class="btn btn-red btn-xs" onclick="delCost('${c.id||i}',${i})">🗑</button></td></tr>`;
         }).join(''):'<tr><td colspan="5" style="text-align:center;padding:22px;color:var(--txt2)">Belum ada pengeluaran</td></tr>'}</tbody>
       </table>
     </div>
@@ -957,75 +846,52 @@ function renderDetail(){
   <div class="card" style="padding:14px">
     <div style="font-size:10px;font-weight:700;color:var(--txt2);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px">📋 Info Project</div>
     ${infoRows}
-    <div class="recap-row" style="font-size:12px"><span style="color:var(--txt2)">Tanggal Mulai</span><span>${fmtDate(p.startDate)}</span></div>
-    <div class="recap-row" style="font-size:12px"><span style="color:var(--txt2)">Target Selesai</span><span style="color:${diff!==null&&diff<=3&&p.status!=='Selesai'?'var(--gold)':'inherit'}">${fmtDate(p.targetDate)}${diff!==null&&p.status!=='Selesai'?' ('+diff+'hr)':''}</span></div>
   </div>`;
 }
 
-// ══════ COST EDIT/ADD ══════
-let _editCostId=null, _editCostIdx=null;
-function openCostM(){
-  _editCostId=null; _editCostIdx=null;
-  document.getElementById('mCostTitle').textContent='💸 Tambah Pengeluaran';
-  document.getElementById('saveCostBtn').textContent='+ Tambah';
-  document.getElementById('cItem').value='';
-  document.getElementById('cQty').value='1';
-  document.getElementById('cPrice').value='';
-  document.getElementById('costPrev').textContent='Total: Rp 0';
-  openM('mCost');
-}
-function editCost(cid,idx){
-  const p=PROJECTS.find(x=>x.id===curPid); if(!p)return;
-  const c=p.costs[idx]; if(!c)return;
-  _editCostId=cid; _editCostIdx=idx;
-  document.getElementById('mCostTitle').textContent='✏️ Edit Pengeluaran';
-  document.getElementById('saveCostBtn').textContent='💾 Simpan Perubahan';
-  document.getElementById('cItem').value=c.item;
-  document.getElementById('cQty').value=c.qty;
-  document.getElementById('cPrice').value=c.price;
-  document.getElementById('costPrev').textContent='Total: '+fmt(+c.qty*(+c.price));
-  openM('mCost');
-}
 function updCostPrev(){
   const q=+document.getElementById('cQty')?.value||0;
   const pr=+document.getElementById('cPrice')?.value||0;
   const el=document.getElementById('costPrev');
   if(el) el.textContent='Total: '+fmt(q*pr);
 }
+
 async function saveCost(){
   const item=document.getElementById('cItem').value.trim();
   const qty=+document.getElementById('cQty').value||1;
   const price=+document.getElementById('cPrice').value||0;
   if(!item){toast('Keterangan wajib!','err');return;}
   if(!price){toast('Harga wajib!','err');return;}
-  const p=PROJECTS.find(x=>x.id===curPid); if(!p)return;
-  try{
-    if(_editCostIdx!==null){
-      const c=p.costs[_editCostIdx];
-      if(c.id && typeof c.id==='string' && c.id.length>5) await fbSet('projects/'+curPid+'/costs/'+c.id,{item,qty,price});
-      p.costs[_editCostIdx]={...c,item,qty,price};
-      toast('Pengeluaran diperbarui! ✅','ok');
-    } else {
-      const id=await fbAdd('projects/'+curPid+'/costs',{item,qty,price});
-      if(!p.costs) p.costs=[];
-      p.costs.push({id,item,qty,price});
-      toast('Pengeluaran ditambahkan! ✅','ok');
-    }
-    closeM('mCost'); renderDetail();
-  }catch(e){toast('Gagal: '+e.message,'err');}
-}
-async function delCost(cid,idx){
-  if(!confirm('Hapus item ini?')) return;
-  const p=PROJECTS.find(x=>x.id===curPid); if(!p)return;
-  try{
-    if(cid && isNaN(cid)) await fbDel('projects/'+curPid+'/costs/'+cid);
-    p.costs.splice(idx,1); renderDetail(); toast('Item dihapus','info');
-  }catch(e){toast('Gagal: '+e.message,'err');}
+  const p=PROJECTS.find(x=>x.id===curPid); if(!p) return;
+  try {
+    const id = await fbAdd(`projects/${curPid}/costs`, {item,qty,price});
+    if(!p.costs) p.costs=[];
+    p.costs.push({id,item,qty,price});
+    closeM('mCost');
+    document.getElementById('cItem').value='';
+    document.getElementById('cQty').value='1';
+    document.getElementById('cPrice').value='';
+    renderDetail();
+    toast('Pengeluaran ditambahkan! ✅','ok');
+  } catch(e){ toast('Gagal: '+e.message,'err'); }
 }
 
-// ══════ PDF ══════
+async function delCost(cid, idx){
+  if(!confirm('Hapus item ini?')) return;
+  const p=PROJECTS.find(x=>x.id===curPid); if(!p) return;
+  try {
+    if(cid && isNaN(cid)) await fbDel(`projects/${curPid}/costs/${cid}`);
+    p.costs.splice(idx,1);
+    renderDetail();
+    toast('Item dihapus','info');
+  } catch(e){ toast('Gagal: '+e.message,'err'); }
+}
+
+// ══════════════════════════════════════════
+// PDF & EXCEL
+// ══════════════════════════════════════════
 function expPDF(){
-  const p=PROJECTS.find(x=>x.id===curPid); if(!p)return;
+  const p=PROJECTS.find(x=>x.id===curPid); if(!p) return;
   const {jsPDF}=window.jspdf;
   const doc=new jsPDF();
   const costs=p.costs||[];
@@ -1040,9 +906,7 @@ function expPDF(){
   let y=36;
   doc.setFontSize(13);doc.setFont('helvetica','bold');doc.text(p.name,14,y);y+=8;
   doc.setFontSize(9);doc.setFont('helvetica','normal');
-  COLS.forEach(c=>{let v=p[c.key]||'-';if(c.type==='number')v=fmt(v);doc.text(c.label+': '+v,14,y);y+=6;});
-  doc.text('Tanggal Mulai: '+(p.startDate||'-'),14,y);y+=6;
-  doc.text('Target Selesai: '+(p.targetDate||'-'),14,y);y+=6;
+  COLS.forEach(c=>{let v=p[c.key]||'-';if(c.type==='number')v=fmt(v);doc.text(`${c.label}: ${v}`,14,y);y+=6;});
   y+=4;
   doc.setFillColor(225,235,255);doc.rect(14,y-4,182,8,'F');
   doc.setFont('helvetica','bold');doc.setFontSize(9);doc.setTextColor(30,30,30);
@@ -1051,8 +915,10 @@ function expPDF(){
   costs.forEach((c,i)=>{
     if(i%2===0){doc.setFillColor(248,250,255);doc.rect(14,y-4,182,7,'F');}
     const tot=+c.qty*(+c.price)||0;
-    doc.text(String(c.item).substring(0,35),15,y);doc.text(String(c.qty),95,y);
-    doc.text(fmt(c.price),107,y);doc.text(fmt(tot),163,y);
+    doc.text(String(c.item).substring(0,35),15,y);
+    doc.text(String(c.qty),95,y);
+    doc.text(fmt(c.price),107,y);
+    doc.text(fmt(tot),163,y);
     y+=7; if(y>265){doc.addPage();y=20;}
   });
   y+=4;doc.setDrawColor(180,200,220);doc.line(14,y,196,y);y+=7;
@@ -1061,17 +927,17 @@ function expPDF(){
   doc.text('Nilai Kontrak:',14,y);doc.text(fmt(p.value||0),140,y);y+=7;
   doc.setTextColor(si>=0?0:180,si>=0?140:0,si>=0?70:0);
   doc.text('Sisa Dana:',14,y);doc.text(fmt(si),140,y);
-  y+=12;doc.setFontSize(8);doc.setTextColor(150,150,150);
-  doc.text('Copyright ©2026 SRISP  |  v 1.2',14,y);
+  y+=14;doc.setFontSize(8);doc.setTextColor(150,150,150);
+  doc.text('Copyright ©2026 SRISP',14,y);
 
-  const pdfUri=doc.output('datauristring');
-  document.getElementById('pdfFrame').src=pdfUri;
+  const blob=doc.output('blob');
+  const url=URL.createObjectURL(blob);
+  document.getElementById('pdfFrame').src=url;
   document.getElementById('pdfDlBtn').onclick=()=>{
     const a=document.createElement('a');
-    a.href=pdfUri; a.download='Project_'+p.name.replace(/\s/g,'_')+'.pdf'; a.click();
+    a.href=url; a.download=`Project_${p.name.replace(/\s/g,'_')}.pdf`; a.click();
     toast('PDF diunduh!','ok');
   };
-  document.getElementById('pdfOpenTab').onclick=()=>window.open(pdfUri,'_blank');
   document.getElementById('pdfWrap').classList.add('open');
 }
 function closePDF(){
@@ -1079,24 +945,24 @@ function closePDF(){
   document.getElementById('pdfFrame').src='';
 }
 
-// ══════ EXCEL ══════
 function expXLS(){
-  const p=PROJECTS.find(x=>x.id===curPid); if(!p)return;
+  const p=PROJECTS.find(x=>x.id===curPid); if(!p) return;
   const costs=p.costs||[];
   const sp=costs.reduce((a,c)=>a+(+c.qty*(+c.price)||0),0);
   const rows=costs.map(c=>({'Keterangan':c.item,'Jumlah':+c.qty,'Harga Satuan':+c.price,'Total':+c.qty*(+c.price)||0}));
-  rows.push({});
-  rows.push({'Keterangan':'Total Pengeluaran','Total':sp});
+  rows.push({}); rows.push({'Keterangan':'Total Pengeluaran','Total':sp});
   rows.push({'Keterangan':'Nilai Kontrak','Total':+p.value||0});
   rows.push({'Keterangan':'Sisa Dana','Total':(+p.value||0)-sp});
-  rows.push({}); rows.push({'Keterangan':'Copyright ©2026 SRISP | v 1.2'});
+  rows.push({}); rows.push({'Keterangan':'Copyright ©2026 SRISP'});
   const ws=XLSX.utils.json_to_sheet(rows);
   const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,'Pengeluaran');
-  XLSX.writeFile(wb,'Project_'+p.name.replace(/\s/g,'_')+'.xlsx');
+  XLSX.writeFile(wb,`Project_${p.name.replace(/\s/g,'_')}.xlsx`);
   toast('Excel diunduh! ✅','ok');
 }
 
-// ══════ ESTIMASI ══════
+// ══════════════════════════════════════════
+// ESTIMASI
+// ══════════════════════════════════════════
 let editEid=null;
 function tabEst(){
   const opts=ESTS.map(t=>`<option value="${t.id}">${t.name}</option>`).join('');
@@ -1105,7 +971,8 @@ function tabEst(){
     <div class="fg" style="margin-bottom:0"><label class="lbl">Tipe Pekerjaan</label>
     <select class="inp" id="estSel" onchange="doSelEst()">${'<option value="">-- Pilih Tipe --</option>'+opts}</select></div>
   </div>
-  <div id="estFormWrap"></div><div id="estResultWrap"></div>
+  <div id="estFormWrap"></div>
+  <div id="estResultWrap"></div>
   <div class="div"></div>
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
     <div class="stitle" style="margin-bottom:0">⚙️ Kelola Tipe</div>
@@ -1119,10 +986,12 @@ function tabEst(){
     </div>
   </div>`).join('')||'<div class="empty" style="padding:16px"><p>Belum ada tipe estimasi</p></div>'}`;
 }
+
 function doSelEst(){
   const id=document.getElementById('estSel').value;
   const t=ESTS.find(x=>x.id===id);
-  const fw=document.getElementById('estFormWrap'), rw=document.getElementById('estResultWrap');
+  const fw=document.getElementById('estFormWrap');
+  const rw=document.getElementById('estResultWrap');
   if(!t){fw.innerHTML='';rw.innerHTML='';return;}
   fw.innerHTML=`<div class="card" style="padding:14px;margin-bottom:12px">
     <div class="fg"><label class="lbl">Jumlah (${t.unit})</label><input type="number" class="inp" id="eQty" placeholder="0" oninput="calcEstResult()"></div>
@@ -1134,7 +1003,7 @@ function doSelEst(){
 }
 function calcEstResult(){
   const id=document.getElementById('estSel')?.value;
-  const t=ESTS.find(x=>x.id===id); if(!t)return;
+  const t=ESTS.find(x=>x.id===id); if(!t) return;
   const qty=+document.getElementById('eQty')?.value||0;
   const up=+document.getElementById('eUprice')?.value||t.price;
   const disc=+document.getElementById('eDisc')?.value||0;
@@ -1149,6 +1018,7 @@ function calcEstResult(){
     <div class="recap-row"><span>TOTAL</span><span style="color:var(--green)">${fmt(total)}</span></div>
   </div>`;
 }
+
 function openEstM(id=null){
   editEid=id;
   document.getElementById('mEstTitle').textContent=id?'✏️ Edit Tipe':'🧮 Tambah Tipe Estimasi';
@@ -1165,33 +1035,53 @@ async function saveEstType(){
   const price=+document.getElementById('etPrice').value||0;
   const note=document.getElementById('etNote').value.trim();
   if(!name||!unit){toast('Nama dan satuan wajib!','err');return;}
-  try{
-    if(editEid){await fbSet('estimasi/'+editEid,{name,unit,price,note});const t=ESTS.find(x=>x.id===editEid);if(t)Object.assign(t,{name,unit,price,note});}
-    else{const id=await fbAdd('estimasi',{name,unit,price,note});ESTS.push({id,name,unit,price,note});}
+  try {
+    if(editEid){
+      await fbSet(`estimasi/${editEid}`,{name,unit,price,note});
+      const t=ESTS.find(x=>x.id===editEid); if(t)Object.assign(t,{name,unit,price,note});
+    } else {
+      const id=await fbAdd('estimasi',{name,unit,price,note});
+      ESTS.push({id,name,unit,price,note});
+    }
     closeM('mEst'); setTab(2,document.getElementById('bn2'));
     toast('Tipe disimpan! ✅','ok');
-  }catch(e){toast('Gagal: '+e.message,'err');}
+  } catch(e){ toast('Gagal: '+e.message,'err'); }
 }
 async function delEst(id){
-  if(!confirm('Hapus tipe ini?'))return;
-  try{await fbDel('estimasi/'+id);ESTS=ESTS.filter(x=>x.id!==id);setTab(2,document.getElementById('bn2'));toast('Dihapus','info');}
-  catch(e){toast('Gagal: '+e.message,'err');}
+  if(!confirm('Hapus tipe ini?')) return;
+  try {
+    await fbDel(`estimasi/${id}`);
+    ESTS=ESTS.filter(x=>x.id!==id);
+    setTab(2,document.getElementById('bn2'));
+    toast('Dihapus','info');
+  } catch(e){ toast('Gagal: '+e.message,'err'); }
 }
 
-// ══════ SETTINGS ══════
+// ══════════════════════════════════════════
+// SETTINGS
+// ══════════════════════════════════════════
 let editSid=null;
 function tabSet(){
   return `<div class="stitle">Pengaturan</div>
+
+  <!-- BG PICKER -->
   <div class="card" style="padding:15px;margin-bottom:11px">
     <div style="font-weight:700;color:var(--cyan);font-size:12px;margin-bottom:12px">🖼 Background Aplikasi</div>
-    <div class="bg-preview" id="bgPrev" style="background-image:url('${AP.bg||DEF_AP.bg}')"><span style="position:relative;z-index:1;font-size:28px">🏗</span></div>
+    <div class="bg-preview" id="bgPrev" style="background-image:url('${AP.bg||DEF_AP.bg}')">
+      <span style="position:relative;z-index:1;font-size:28px">🏗</span>
+    </div>
     <div class="fg"><label class="lbl">URL Gambar Web</label><input class="inp" id="bgUrl" value="${AP.bg||''}" placeholder="https://...gambar.jpg"></div>
-    <div class="fg" style="margin-bottom:0"><label class="lbl">Atau pilih dari file</label><input type="file" accept="image/*" class="inp" id="bgFile" style="padding:8px" onchange="onBgFile(this)"></div>
+    <div class="fg" style="margin-bottom:0">
+      <label class="lbl">Atau pilih dari file</label>
+      <input type="file" accept="image/*" class="inp" id="bgFile" style="padding:8px" onchange="onBgFile(this)">
+    </div>
     <div style="display:flex;gap:8px;margin-top:12px">
       <button class="btn btn-ghost btn-sm" style="flex:1" onclick="previewBgUrl()">👁 Preview</button>
       <button class="btn btn-blue btn-sm" style="flex:2" onclick="saveBG()">💾 Simpan BG</button>
     </div>
   </div>
+
+  <!-- APPEARANCE -->
   <div class="card" style="padding:15px;margin-bottom:11px">
     <div style="font-weight:700;color:var(--cyan);font-size:12px;margin-bottom:12px">🎨 Tampilan Perusahaan</div>
     <div class="fg"><label class="lbl">Nama Perusahaan</label><input class="inp" id="saN" value="${AP.name}"></div>
@@ -1202,6 +1092,8 @@ function tabSet(){
     <div class="fg" style="margin-bottom:0"><label class="lbl">Emoji Logo</label><input class="inp" id="saE" value="${AP.logoEmoji||'🔧'}"></div>
     <button class="btn btn-green btn-sm" style="width:100%;margin-top:12px;justify-content:center" onclick="saveAp()">💾 Simpan Tampilan</button>
   </div>
+
+  <!-- CONTACT -->
   <div class="card" style="padding:15px;margin-bottom:11px">
     <div style="font-weight:700;color:var(--cyan);font-size:12px;margin-bottom:12px">📱 Kontak WhatsApp</div>
     <div class="fg"><label class="lbl">Nama Kontak</label><input class="inp" id="scN" value="${CT.name}"></div>
@@ -1209,39 +1101,48 @@ function tabSet(){
     <div class="fg" style="margin-bottom:0"><label class="lbl">Pesan Default</label><textarea class="inp" id="scM">${CT.msg}</textarea></div>
     <button class="btn btn-green btn-sm" style="width:100%;margin-top:12px;justify-content:center" onclick="saveCt()">💾 Simpan Kontak</button>
   </div>
+
+  <!-- SERVICES -->
   <div class="card" style="padding:15px;margin-bottom:11px">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
       <div style="font-weight:700;color:var(--cyan);font-size:12px">🛠 Kelola Layanan</div>
       <button class="btn btn-blue btn-xs" onclick="openSvcM()">＋ Tambah</button>
     </div>
     ${SVCS.map(s=>`<div class="est-item">
-      <div style="display:flex;align-items:center;gap:10px"><span style="font-size:22px">${s.icon}</span>
-      <div><div style="font-weight:700;font-size:13px">${s.name}</div><div style="font-size:11px;color:var(--txt2)">${s.desc.substring(0,40)}…</div></div></div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="font-size:22px">${s.icon}</span>
+        <div><div style="font-weight:700;font-size:13px">${s.name}</div><div style="font-size:11px;color:var(--txt2)">${s.desc.substring(0,40)}…</div></div>
+      </div>
       <div style="display:flex;gap:6px;flex-shrink:0">
         <button class="btn btn-ghost btn-xs" onclick="openSvcM('${s.id}')">✏️</button>
         <button class="btn btn-red btn-xs" onclick="delSvc('${s.id}')">🗑</button>
       </div>
     </div>`).join('')||'<div class="empty" style="padding:14px"><p>Belum ada layanan</p></div>'}
   </div>
-  <div class="card" style="padding:15px;margin-bottom:11px">
+
+  <!-- COLUMNS -->
+  <div class="card" style="padding:15px;margin-bottom:20px">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
       <div style="font-weight:700;color:var(--cyan);font-size:12px">📋 Kolom Project</div>
       <button class="btn btn-blue btn-xs" onclick="addCol()">＋ Kolom</button>
     </div>
-    ${COLS.map((c,i)=>`<div style="margin-bottom:9px;padding:10px;background:rgba(255,255,255,.03);border:1px solid var(--bdr);border-radius:9px">
-      <div style="display:flex;gap:7px;margin-bottom:6px">
-        <input class="inp" value="${c.label}" style="flex:2;padding:8px 10px;font-size:12px" onchange="upCol(${i},'label',this.value)" placeholder="Nama Kolom">
-        <select class="inp" style="flex:1;min-width:80px;padding:8px 10px;font-size:12px" onchange="upCol(${i},'type',this.value)">
-          <option value="text" ${c.type==='text'?'selected':''}>Teks</option>
-          <option value="number" ${c.type==='number'?'selected':''}>Angka</option>
-          <option value="select" ${c.type==='select'?'selected':''}>Pilihan</option>
-        </select>
-        ${(c.key==='name'||c.key==='value')?`<span style="font-size:16px;opacity:.3;align-self:center">🔒</span>`:`<button class="btn btn-red btn-xs" onclick="rmCol(${i})">🗑</button>`}
-      </div>
-      ${c.type==='select'?`<input class="inp" style="font-size:11px;padding:7px 10px" value="${(c.opts||[]).join(',')}" placeholder="opsi1,opsi2,opsi3" onchange="upCol(${i},'opts',this.value.split(',').map(x=>x.trim()).filter(Boolean))">`:''}</div>`
+    ${COLS.map((c,i)=>`
+      <div style="margin-bottom:9px;padding:10px;background:rgba(255,255,255,.03);border:1px solid var(--bdr);border-radius:9px">
+        <div style="display:flex;gap:7px;margin-bottom:6px">
+          <input class="inp" value="${c.label}" style="flex:2;padding:8px 10px;font-size:12px" onchange="upCol(${i},'label',this.value)" placeholder="Nama Kolom">
+          <select class="inp" style="flex:1;min-width:80px;padding:8px 10px;font-size:12px" onchange="upCol(${i},'type',this.value)">
+            <option value="text" ${c.type==='text'?'selected':''}>Teks</option>
+            <option value="number" ${c.type==='number'?'selected':''}>Angka</option>
+            <option value="select" ${c.type==='select'?'selected':''}>Pilihan</option>
+          </select>
+          ${(c.key==='name'||c.key==='value')?`<span style="font-size:16px;opacity:.3;align-self:center">🔒</span>`:`<button class="btn btn-red btn-xs" onclick="rmCol(${i})">🗑</button>`}
+        </div>
+        ${c.type==='select'?`<input class="inp" style="font-size:11px;padding:7px 10px" value="${(c.opts||[]).join(',')}" placeholder="opsi1,opsi2,opsi3" onchange="upCol(${i},'opts',this.value.split(',').map(x=>x.trim()).filter(Boolean))">`:''}`
     ).join('')}
     <button class="btn btn-green btn-sm" style="width:100%;margin-top:8px;justify-content:center" onclick="saveCols()">💾 Simpan Kolom</button>
   </div>
+
+  <!-- GANTI PASSWORD -->
   <div class="card" style="padding:15px;margin-bottom:20px">
     <div style="font-weight:700;color:var(--cyan);font-size:12px;margin-bottom:12px">🔐 Ganti Password Login</div>
     <div class="fg"><label class="lbl">Password Lama</label><input type="password" class="inp" id="cpOld" placeholder="Password saat ini"></div>
@@ -1249,36 +1150,68 @@ function tabSet(){
     <div class="fg" style="margin-bottom:0"><label class="lbl">Ulangi Password Baru</label><input type="password" class="inp" id="cpNew2" placeholder="Ulangi password baru"></div>
     <button class="btn btn-orange btn-sm" style="width:100%;margin-top:12px;justify-content:center" onclick="changePw()">🔒 Ganti Password</button>
   </div>
-  <div class="copyright">Copyright ©2026 SRISP</div>
-  <div class="ver">v 1.2</div>`;
+
+  <div class="copyright">Copyright ©2026 SRISP</div>`;
 }
 
-function previewBgUrl(){const url=document.getElementById('bgUrl').value.trim();if(url){document.getElementById('bgPrev').style.backgroundImage=`url('${url}')`;applyBG(url);}}
+// BG
+function previewBgUrl(){
+  const url=document.getElementById('bgUrl').value.trim();
+  if(url){
+    document.getElementById('bgPrev').style.backgroundImage=`url('${url}')`;
+    applyBG(url);
+  }
+}
 function onBgFile(input){
-  const file=input.files[0]; if(!file)return;
+  const file=input.files[0]; if(!file) return;
   const reader=new FileReader();
-  reader.onload=e=>{const url=e.target.result;document.getElementById('bgPrev').style.backgroundImage=`url('${url}')`;document.getElementById('bgUrl').value='(file lokal)';applyBG(url);AP._bgLocal=url;};
+  reader.onload=e=>{
+    const url=e.target.result;
+    document.getElementById('bgPrev').style.backgroundImage=`url('${url}')`;
+    document.getElementById('bgUrl').value='(file lokal)';
+    applyBG(url);
+    AP._bgLocal=url;
+  };
   reader.readAsDataURL(file);
 }
 async function saveBG(){
   const urlInput=document.getElementById('bgUrl').value.trim();
-  const bgVal=AP._bgLocal||(urlInput!=='(file lokal)'?urlInput:AP.bg);
-  AP.bg=bgVal; delete AP._bgLocal; applyBG(bgVal);
-  try{await fbSet('config/appearance',{bg:bgVal});toast('Background disimpan! ✅','ok');}
-  catch(e){toast('Gagal simpan BG: '+e.message,'err');}
+  const bgVal = AP._bgLocal || (urlInput!=='(file lokal)'?urlInput:AP.bg);
+  AP.bg=bgVal; delete AP._bgLocal;
+  applyBG(bgVal);
+  try {
+    // For base64 (local file), store in Firestore (note: max 1MB)
+    await fbSet('config/appearance', {bg: bgVal});
+    toast('Background disimpan! ✅','ok');
+  } catch(e){ toast('Gagal simpan BG: '+e.message,'err'); }
 }
+
 async function saveAp(){
-  AP.name=document.getElementById('saN').value; AP.tag=document.getElementById('saT').value;
-  AP.heroTitle=document.getElementById('saH').value; AP.heroDesc=document.getElementById('saD').value;
-  AP.logoUrl=document.getElementById('saL').value; AP.logoEmoji=document.getElementById('saE').value;
-  try{await fbSet('config/appearance',AP);setLogo(['logoC','logoA']);document.getElementById('coNameA').textContent=AP.name;renderClient();toast('Tampilan disimpan! ✅','ok');}
-  catch(e){toast('Gagal: '+e.message,'err');}
+  AP.name=document.getElementById('saN').value;
+  AP.tag=document.getElementById('saT').value;
+  AP.heroTitle=document.getElementById('saH').value;
+  AP.heroDesc=document.getElementById('saD').value;
+  AP.logoUrl=document.getElementById('saL').value;
+  AP.logoEmoji=document.getElementById('saE').value;
+  try {
+    await fbSet('config/appearance', AP);
+    setLogo(['logoC','logoA']);
+    document.getElementById('coNameA').textContent=AP.name;
+    renderClient();
+    toast('Tampilan disimpan! ✅','ok');
+  } catch(e){ toast('Gagal: '+e.message,'err'); }
 }
 async function saveCt(){
-  CT.name=document.getElementById('scN').value; CT.num=document.getElementById('scW').value; CT.msg=document.getElementById('scM').value;
-  try{await fbSet('config/contact',CT);renderClient();toast('Kontak disimpan! ✅','ok');}
-  catch(e){toast('Gagal: '+e.message,'err');}
+  CT.name=document.getElementById('scN').value;
+  CT.num=document.getElementById('scW').value;
+  CT.msg=document.getElementById('scM').value;
+  try {
+    await fbSet('config/contact', CT);
+    renderClient();
+    toast('Kontak disimpan! ✅','ok');
+  } catch(e){ toast('Gagal: '+e.message,'err'); }
 }
+
 function openSvcM(id=null){
   editSid=id;
   document.getElementById('mSvcTitle').textContent=id?'✏️ Edit Layanan':'🛠 Tambah Layanan';
@@ -1293,55 +1226,71 @@ async function saveSvc(){
   const name=document.getElementById('sName').value.trim();
   const desc=document.getElementById('sDesc').value.trim();
   if(!name){toast('Nama wajib!','err');return;}
-  try{
-    if(editSid){await fbSet('services/'+editSid,{icon,name,desc});const s=SVCS.find(x=>x.id===editSid);if(s)Object.assign(s,{icon,name,desc});}
-    else{const id=await fbAdd('services',{icon,name,desc});SVCS.push({id,icon,name,desc});}
-    closeM('mSvc'); setTab(4,document.getElementById('bn4')); renderClient();
+  try {
+    if(editSid){
+      await fbSet(`services/${editSid}`,{icon,name,desc});
+      const s=SVCS.find(x=>x.id===editSid); if(s)Object.assign(s,{icon,name,desc});
+    } else {
+      const id=await fbAdd('services',{icon,name,desc});
+      SVCS.push({id,icon,name,desc});
+    }
+    closeM('mSvc'); setTab(3,document.getElementById('bn3')); renderClient();
     toast('Layanan disimpan! ✅','ok');
-  }catch(e){toast('Gagal: '+e.message,'err');}
+  } catch(e){ toast('Gagal: '+e.message,'err'); }
 }
 async function delSvc(id){
-  if(!confirm('Hapus layanan ini?'))return;
-  try{await fbDel('services/'+id);SVCS=SVCS.filter(x=>x.id!==id);setTab(4,document.getElementById('bn4'));renderClient();toast('Dihapus','info');}
-  catch(e){toast('Gagal: '+e.message,'err');}
+  if(!confirm('Hapus layanan ini?')) return;
+  try {
+    await fbDel(`services/${id}`);
+    SVCS=SVCS.filter(x=>x.id!==id);
+    setTab(3,document.getElementById('bn3')); renderClient();
+    toast('Dihapus','info');
+  } catch(e){ toast('Gagal: '+e.message,'err'); }
 }
-function upCol(i,k,v){COLS[i][k]=v;}
-function addCol(){COLS.push({key:'c'+Date.now(),label:'Kolom Baru',type:'text',req:false});setTab(4,document.getElementById('bn4'));}
+
+function upCol(i,k,v){ COLS[i][k]=v; }
+function addCol(){ COLS.push({key:'c'+Date.now(),label:'Kolom Baru',type:'text',req:false}); setTab(3,document.getElementById('bn3')); }
 function rmCol(i){
   if(COLS[i].key==='name'||COLS[i].key==='value'){toast('Tidak bisa dihapus','err');return;}
-  if(!confirm('Hapus kolom ini?'))return;
-  COLS.splice(i,1); setTab(4,document.getElementById('bn4'));
-}
-async function saveCols(){
-  try{await fbSet('config/columns',{data:COLS});toast('Kolom disimpan! ✅','ok');}
-  catch(e){toast('Gagal: '+e.message,'err');}
+  if(!confirm('Hapus kolom ini?')) return;
+  COLS.splice(i,1); setTab(3,document.getElementById('bn3'));
 }
 async function changePw(){
-  const oldPw=document.getElementById('cpOld').value;
-  const newPw=document.getElementById('cpNew').value;
-  const newPw2=document.getElementById('cpNew2').value;
+  const oldPw = document.getElementById('cpOld').value;
+  const newPw = document.getElementById('cpNew').value;
+  const newPw2 = document.getElementById('cpNew2').value;
   if(!oldPw||!newPw||!newPw2){toast('Semua field wajib diisi!','err');return;}
   if(newPw!==newPw2){toast('Password baru tidak sama!','err');return;}
   if(newPw.length<6){toast('Password minimal 6 karakter!','err');return;}
-  try{
-    const {signInWithEmailAndPassword,updatePassword}=window._fbFns;
-    const user=window._auth.currentUser;
-    await signInWithEmailAndPassword(window._auth,ADMIN_EMAIL,oldPw);
-    await updatePassword(user,newPw);
+  try {
+    const {signInWithEmailAndPassword, updatePassword} = window._fbFns;
+    const user = window._auth.currentUser;
+    // Re-authenticate dulu
+    await signInWithEmailAndPassword(window._auth, ADMIN_EMAIL, oldPw);
+    await updatePassword(user, newPw);
     document.getElementById('cpOld').value='';
     document.getElementById('cpNew').value='';
     document.getElementById('cpNew2').value='';
     toast('Password berhasil diubah! ✅','ok');
-  }catch(e){
-    let msg='Gagal ganti password';
+  } catch(e){
+    let msg = 'Gagal ganti password';
     if(e.code==='auth/wrong-password'||e.code==='auth/invalid-credential') msg='Password lama salah!';
     else if(e.code==='auth/weak-password') msg='Password baru terlalu lemah!';
-    else msg='Error: '+(e.code||e.message);
+    else msg = 'Error: '+(e.code||e.message);
     toast(msg,'err');
   }
 }
 
-// ══════ INIT ══════
+async function saveCols(){
+  try {
+    await fbSet('config/columns',{data:COLS});
+    toast('Kolom disimpan! ✅','ok');
+  } catch(e){ toast('Gagal: '+e.message,'err'); }
+}
+
+// ══════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════
 applyBG(DEF_AP.bg);
 renderClient();
 initAuth();
